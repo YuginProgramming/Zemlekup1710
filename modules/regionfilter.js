@@ -27,7 +27,7 @@ const regionFilterKeyboard = async (chatId, state) => {
   }
 
   const getLotContentFromData = (lot) => {
-    const message = `\u{1F4CA} ${lot.area} га, ₴ ${lot.price} ( ${lot.area/lot.price} грн/га) \n дохідність ${lot.revenue} % \n ${lot.cadastral_number} \n ${lot.state} область, ${lot.region} район \n \u{1F69C} орендар: ${lot.tenant}, ${lot.lease_term} років`;
+    const message = `\u{1F4CA} ${lot.area} га, ₴ ${lot.price} ( ${lot.price/lot.area} грн/га) \n дохідність ${lot.revenue} % \n ${lot.cadastral_number} \n ${lot.state} область, ${lot.region} район \n \u{1F69C} орендар: ${lot.tenant}, ${lot.lease_term} років`;
     return message;
 }
   const sendFiltredByRegToChat = async (chatId, region) => {
