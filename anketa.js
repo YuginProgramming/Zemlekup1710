@@ -100,12 +100,12 @@ export const anketaListiner = async() => {
         const stateName = cuttingCallbackData(action, 'state');
         console.log(stateName);
         await regionFilterKeyboard(chatId, stateName);
-        await sendFiltredToChat(chatId, action, ranges.stateColumn);
-      } //else if(checkRegex(action, 'region')) {
-       // const regionName = cuttingCallbackData(action, 'region');
-       // console.log(regionName);
-       // await sendFiltredByRegToChat(chatId, regionName);
-    //  }
+        // await sendFiltredToChat(chatId, action, ranges.stateColumn);
+      } else if(checkRegex(action, 'region')) {
+       const regionName = cuttingCallbackData(action, 'region');
+       console.log(regionName);
+       await sendFiltredByRegToChat(chatId, regionName);
+    }
       switch (action) {
         case '/start':
           bot.deleteMessage(chatId, userInfo?.recentMessage).catch((error) => {logger.warn(`Помилка видалення повідомлення: ${error}`);});
