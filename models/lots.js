@@ -72,7 +72,7 @@ Lot.init({
         allowNull: false,
     },
     bot_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.TEXT,
         allowNull: true
     }  
 
@@ -159,6 +159,32 @@ const findLotBylotNumber = async (lotNumber) => {
     return;
 };
 
+// Check if the lot already exists in the database
+const lotExistsInDatabase = async (bot_id) => {
+    const res = await Lot.findOne({ where: { bot_id } });
+    if (res) {
+        console.log('yes');
+        return true;
+      } else {
+        console.log('no');
+        return false;
+      }
+  };
+
+// Check lot by BOT_ID
+const findLotByBotId = async (bot_id) => {
+    const res = await Lot.findOne({ where: { bot_id } });
+
+    if (res) {
+        console.log(`Lot with bot_id ${bot_id} found in the database:`, res.dataValues);
+        return res.dataValues;
+    } else {
+        console.log(`Lot with bot_id ${bot_id} not found in the database.`);
+        return;
+    }
+};
+
+
 const findLotsByStatus = async (status) => {
     const res = await Lot.findAll({ where: { lot_status: status } });
     if (res.length > 0) return res.map(el => el.dataValues);
@@ -203,5 +229,7 @@ export {
     findLotsByStatus,
     updateLotIDByLotNumber,
     findLotsByStatusAndState,
-    findLotsByStatusAndRegion
+    findLotsByStatusAndRegion,
+    lotExistsInDatabase,
+    findLotByBotId
 };   

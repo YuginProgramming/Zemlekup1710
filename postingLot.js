@@ -118,11 +118,7 @@ const postingLots = () => {
             const lot = await readGoogle(ranges.postContentLine(rowNumber));
             if (lot && lot.length > 0) {
               const message = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
-              /*
-              const message = lot.join('\n')
-              .replace(/^/, '\u{1F4CA} ') // add diagramm in 1 line 
-              .replace(/^.*\n.*\n.*\n.*\n/, '$&\u{1F69C} '); // add tractor in 4 line
-              */
+              
               const sentMessage = await bot.sendMessage(dataBot.channelId, message, { reply_markup: keyboards.channelKeyboard });
               await sendLotToRegistredCustomers(message, rowNumber);
               await writeGoogle(ranges.message_idCell(rowNumber), [[sentMessage.message_id]]);
@@ -140,16 +136,14 @@ const addLotById = () => {
       try {
         // Extract the search value from the message
         const searchValue = message.text.replace('add', '').trim();
-
+        
         // Call the function with the extracted search value
         const lot = await addLotToDb(searchValue);
+        
 
         if (lot && lot.length > 0) {
           // Construct the message with the values from the lot array
           const responseMessage = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
-
-          // Send the response message
-          // (You should replace the following line with the code to send the message in your Telegram bot)
           console.log(responseMessage);
         }
       } catch (error) {
@@ -202,6 +196,7 @@ const sendFiltredToChat = async (chatId, callback_data, searchRange) => {
 
 const sendLotToRegistredCustomers = async (message, lotNumber) => {
   const users = await findALLUsers();
+  if (!users) return;
   const usersChatId = users.map(el => el.chat_id);
   const groupSize = 25;
   for (let i = 0; i < usersChatId.length; i += groupSize) {

@@ -11,6 +11,12 @@ export const getLotContentByID = async (lotNumber) => {
     return message;
 }
 
+export const getLotContentByBotId = async (lotNumber) => {
+    const content = await readGoogle(ranges.postContentLine(lotNumber));
+    const message = `\u{1F4CA} ${content[0]} \n ${content[1]} \n ${content[2]} \n ${content[3]} \n \u{1F69C} ${content[4]}`;
+    return message;
+}
+
 // 🗽🌞
 const checkStatus = (rowNumber, chat_id) => {
     setTimeout(async () => {

@@ -17,9 +17,15 @@ const main = async () => {
             Reserv.sync(),
         ]);
         
-           // Run your migration directly in the script
-    await sequelize.queryInterface.addColumn('lots', 'bot_id', {
-        type: sequelize.Sequelize.INTEGER,
+        // add column sctipt example
+    // await sequelize.queryInterface.addColumn('lots', 'bot_id', {
+    //     type: sequelize.Sequelize.INTEGER,
+    //     allowNull: true,
+    //   });
+
+    //change column type example
+      await sequelize.queryInterface.changeColumn('lots', 'bot_id', {
+        type: sequelize.Sequelize.TEXT,
         allowNull: true,
       });
   
