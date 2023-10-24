@@ -8,7 +8,7 @@ import { findALLUsers, userIsBanUpdate, findUserByChatId, deleteUserByChatId } f
 import { getLotData } from './lotmanipulation.js';
 import { createNewReserv } from './models/reservations.js';
 import { addLotToDb } from "./modules/addLotToDb.js";
-
+/*
 const filterKeyboard = async (chatId, filterName, range) => {
   const stateValues = await readGoogle(range);
   
@@ -39,7 +39,7 @@ const filterKeyboard = async (chatId, filterName, range) => {
   bot.sendMessage(chatId, `Виберіть ${filterName}:`, { reply_markup: { inline_keyboard: result } });
 
 }
-
+*/
 
 
 const autoPosting = async () => {
@@ -54,9 +54,6 @@ const autoPosting = async () => {
     const lotNumber = pendingLots[index];
     //here adding lot to database
     const newLot = await getLotData(lotNumber);
-    //here adding reserv for this lot to database
-    const newReserv = await createNewReserv(lotNumber);
-    console.log(newLot);
     try {
       const postedLot = await bot.sendMessage(dataBot.channelId, element, { reply_markup: keyboards.channelKeyboard });
       await sendLotToRegistredCustomers(element, lotNumber);
@@ -114,7 +111,6 @@ const postingLots = () => {
           try {
             const rowNumber = parseInt(message.text);
             const newLot = await getLotData(rowNumber);
-            const newReserv = await createNewReserv(rowNumber);
             const lot = await readGoogle(ranges.postContentLine(rowNumber));
             if (lot && lot.length > 0) {
               const message = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
@@ -152,7 +148,7 @@ const addLotById = () => {
     }
   });
 };
-
+/*
 const sendAvaliableToChat = async (chatId, bot) => {
   const readedStatus = await readGoogle(ranges.statusColumn);
   const newRows = readedStatus
@@ -166,7 +162,7 @@ const sendAvaliableToChat = async (chatId, bot) => {
       bot.sendMessage(chatId, rowText, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${rowNumber}` }]] } });
   });
 };
-
+*/
 const cuttingCallbackData = (cuttedWord, word) => {
   const regex = new RegExp(`${word}(.+)`, 'i');
   const match = cuttedWord.match(regex);
@@ -176,6 +172,7 @@ const cuttingCallbackData = (cuttedWord, word) => {
   return null;
 };
 
+/*
 const sendFiltredToChat = async (chatId, callback_data, searchRange) => {
   
   
@@ -193,7 +190,7 @@ const sendFiltredToChat = async (chatId, callback_data, searchRange) => {
     bot.sendMessage(chatId, element, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${rowNumber}` }]] } });
   });
 }
-
+*/
 const sendLotToRegistredCustomers = async (message, lotNumber) => {
   const users = await findALLUsers();
   if (!users) return;
@@ -213,4 +210,4 @@ const sendLotToRegistredCustomers = async (message, lotNumber) => {
   logger.info(`*${usersChatId.length} користувачів отримали нагадування про новий лот*`);
 };
 
-export { postingLots, sendAvaliableToChat, autoPosting, filterKeyboard, sendFiltredToChat, userMenegment, cuttingCallbackData, addLotById }
+export { postingLots, /*sendAvaliableToChat*/ autoPosting, /*filterKeyboard, sendFiltredToChat,*/ userMenegment, cuttingCallbackData, addLotById }

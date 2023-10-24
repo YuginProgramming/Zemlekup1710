@@ -13,10 +13,10 @@ Reserv.init({
         type: DataTypes.INTEGER,
         allowNull: true
     },
-    lotNumber: {
-        type: DataTypes.INTEGER,
+    bot_id: {
+        type: DataTypes.STRING,
         allowNull: false,
-    }  
+    },
 }, {
     freezeTableName: false,
     timestamps: true,
@@ -24,10 +24,10 @@ Reserv.init({
     sequelize
 });
 
-const createNewReserv = async (lotNumber) => {
+const createNewReserv = async (bot_id) => {
     let res;
     try {
-        res = await Reserv.create({ lotNumber });
+        res = await Reserv.create({ bot_id });
         res = res.dataValues;
         logger.info(`Created reserv with id: ${res.id}`);
     } catch (err) {
@@ -37,34 +37,34 @@ const createNewReserv = async (lotNumber) => {
 };
 
 
-const updateReservist_idByLotNumber = async (reservist_id, lotNumber) => {
-    const res = await Reserv.update({ reservist_id } , { where: { lotNumber } });
+const updateReservist_idByLotNumber = async (reservist_id, bot_id) => {
+    const res = await Reserv.update({ reservist_id } , { where: { bot_id } });
     if (res[0]) {
-        const data = await findReservByLotNumber(lotNumber);
+        const data = await findReservByLotNumber(bot_id);
         if (data) {
-            logger.info(`Reserv for lotNumber:#${data.lotNumber} updated`);
+            logger.info(`Reserv for ID:#${data.bot_id} updated`);
             return data;
         }
-        logger.info(`Reserv ${lotNumber} updated, but can't read result data`);
+        logger.info(`Reserv ${bot_id} updated, but can't read result data`);
     } 
     return undefined;
 };
 
-const updateWaitlist_idsByLotNumber = async (waitlist_ids, lotNumber) => {
-    const res = await Reserv.update( { waitlist_ids }, { where: { lotNumber } });
+const updateWaitlist_idsByLotNumber = async (waitlist_ids, bot_id) => {
+    const res = await Reserv.update( { waitlist_ids }, { where: { bot_id } });
     if (res[0]) {
-        const data = await findReservByLotNumber(lotNumber);
+        const data = await findReservByLotNumber(bot_id);
         if (data) {
-            logger.info(`Reserv for lotNumber:#${data.lotNumber} updated`);
+            logger.info(`Reserv for ID:#${data.bot_id} updated`);
             return data;
         }
-        logger.info(`Reserv ${lotNumber} updated, but can't read result data`);
+        logger.info(`Reserv ${bot_id} updated, but can't read result data`);
     } 
     return undefined;
 };
 
-const findReservByLotNumber = async (lotNumber) => {
-    const res = await Reserv.findOne({ where: { lotNumber } });
+const findReservByLotNumber = async (bot_id) => {
+    const res = await Reserv.findOne({ where: { bot_id } });
     if (res) return res.dataValues;
     return res;
 };
