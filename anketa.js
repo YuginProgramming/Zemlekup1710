@@ -12,8 +12,8 @@ import {
   updateUserByChatId,
   findUserByChatId
 } from './models/users.js';
-import { updateReservist_idByLotNumber, findReservByLotNumber, createNewReserv } from './models/reservations.js';
-import { updateStatusBybot_id, updateLotIDByLotNumber, findLotBylotNumber} from './models/lots.js';
+import { updateReservist_idByLotNumber, findReservByLotNumber, clearResrvBybot_id } from './models/reservations.js';
+import { updateStatusBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber } from './models/lots.js';
 import { myLotsDataList } from './modules/mylots.js';
 import { addUserToWaitingList } from './modules/waitinglist.js';
 import { getLotData } from './lotmanipulation.js';
@@ -146,10 +146,10 @@ export const anketaListiner = async() => {
           const status = await readGoogle(ranges.statusCell(userInfo?.lotNumber));
           if (status[0] === 'reserve') {
             try {
-              const LotId = userInfo.lotNumber - 1;
               await writeGoogle(ranges.statusCell(userInfo.lotNumber), [['done']]);
-              await updateStatusBybot_id(LotId, 'done');
-              await updateLotIDByLotNumber(LotId, chatId);
+              const updatedLot = await updateStatusByLotNumber(userInfo.lotNumber, 'done');
+              await updateLotIDByLotNumber(userInfo.lotNumber, chatId);
+              await clearResrvBybot_id(updatedLot.bot_id);
               await writeGoogle(ranges.userNameCell(userInfo.lotNumber), [[userInfo.firstname]]);
               await writeGoogle(ranges.userPhoneCell(userInfo.lotNumber), [[userInfo.contact]]);
               await editingMessage(userInfo.lotNumber);

@@ -25,6 +25,8 @@ Reserv.init({
 });
 
 const createNewReserv = async (bot_id) => {
+    const reserv = await findReservByLotNumber(bot_id);
+    if (reserv) return;
     let res;
     try {
         res = await Reserv.create({ bot_id });
@@ -39,6 +41,19 @@ const createNewReserv = async (bot_id) => {
 
 const updateReservist_idByLotNumber = async (reservist_id, bot_id) => {
     const res = await Reserv.update({ reservist_id } , { where: { bot_id } });
+    if (res[0]) {
+        const data = await findReservByLotNumber(bot_id);
+        if (data) {
+            logger.info(`Reserv for ID:#${data.bot_id} updated`);
+            return data;
+        }
+        logger.info(`Reserv ${bot_id} updated, but can't read result data`);
+    } 
+    return undefined;
+};
+
+const clearResrvBybot_id = async ( bot_id) => {
+    const res = await Reserv.update({ reservist_id: 0, waitlist_ids: '' } , { where: { bot_id } });
     if (res[0]) {
         const data = await findReservByLotNumber(bot_id);
         if (data) {
@@ -74,5 +89,6 @@ export {
     createNewReserv,
     updateReservist_idByLotNumber,
     findReservByLotNumber,
-    updateWaitlist_idsByLotNumber
+    updateWaitlist_idsByLotNumber,
+    clearResrvBybot_id
 };   

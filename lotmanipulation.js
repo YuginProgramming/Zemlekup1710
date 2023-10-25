@@ -16,7 +16,7 @@ const getLotData = async (lotNumber) => {
         user_id: data[10],
         region: data[21],
         lot_status: 'new',
-        lotNumber: lotNumber-1,
+        lotNumber: lotNumber,
         area: data[18],
         price: data[19],
         revenue: data[20],

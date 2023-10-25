@@ -108,6 +108,19 @@ const updateStatusBybot_id = async (bot_id, status) => {
     return undefined;
 };
 
+const updateStatusByLotNumber = async (lotNumber, status) => {
+    const res = await Lot.update({ lot_status: status } , { where: { lotNumber } });
+    if (res[0]) {
+        const data = await findLotBylotNumber(lotNumber);
+        if (data) {
+            logger.info(`Lot# ${data.bot_id} status updated. New status: ${data.lot_status}`);
+            return data;
+        }
+        logger.info(`Lot#  ${bot_id} updated, but can't read result data`);
+    } 
+    return undefined;
+};
+
 const updateLotIDByLotNumber = async (lotNumber, user_id) => {
     const res = await Lot.update({ user_id } , { where: { lotNumber } });
     if (res[0]) {
@@ -235,4 +248,5 @@ export {
     findLotsByStatusAndRegion,
     lotExistsInDatabase,
     findLotByBotId,
+    updateStatusByLotNumber
 };   
