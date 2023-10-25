@@ -95,12 +95,38 @@ const createNewLot = async (lotData) => {
     return res;
 };
 
+const updateStatusBybot_id = async (bot_id, status) => {
+    const res = await Lot.update({ lot_status: status } , { where: { bot_id } });
+    if (res[0]) {
+        const data = await findLotByBotId(bot_id);
+        if (data) {
+            logger.info(`Lot# ${data.bot_id} status updated. New status: ${data.lot_status}`);
+            return data;
+        }
+        logger.info(`Lot#  ${bot_id} updated, but can't read result data`);
+    } 
+    return undefined;
+};
+
 const updateStatusByLotNumber = async (lotNumber, status) => {
     const res = await Lot.update({ lot_status: status } , { where: { lotNumber } });
     if (res[0]) {
         const data = await findLotBylotNumber(lotNumber);
         if (data) {
-            logger.info(`Lot# ${data.lotNumber} status updated. New status: ${data.lot_status}`);
+            logger.info(`Lot# ${data.bot_id} status updated. New status: ${data.lot_status}`);
+            return data;
+        }
+        logger.info(`Lot#  ${bot_id} updated, but can't read result data`);
+    } 
+    return undefined;
+};
+
+const updateLotIDByLotNumber = async (lotNumber, user_id) => {
+    const res = await Lot.update({ user_id } , { where: { lotNumber } });
+    if (res[0]) {
+        const data = await findLotBylotNumber(lotNumber);
+        if (data) {
+            logger.info(`Lot# ${data.chat_id} user_id updated.`);
             return data;
         }
         logger.info(`Lot#  ${lotNumber} updated, but can't read result data`);
@@ -108,7 +134,7 @@ const updateStatusByLotNumber = async (lotNumber, status) => {
     return undefined;
 };
 
-const updateLotIDByLotNumber = async (lotNumber, user_id) => {
+const updateLotStatusByID = async (lotNumber, user_id) => {
     const res = await Lot.update({ user_id } , { where: { lotNumber } });
     if (res[0]) {
         const data = await findLotBylotNumber(lotNumber);
@@ -203,11 +229,6 @@ const findLotsByStatusAndRegion = async (status, region) => {
     return;
 };
 
-const findALLUsers = async () => {
-    const res = await User.findAll({ where: {  } });
-    if (res.length > 0) return res.map(el => el.dataValues);
-    return;
-};
 
 const findUserByChatId = async (chat_id) => {
     const res = await User.findOne({ where: { chat_id: chat_id } });
@@ -215,21 +236,17 @@ const findUserByChatId = async (chat_id) => {
     return res;
 };
 
-const deleteUserByChatId = async (chat_id) => {
-    const res = await User.destroy({ where: { chat_id } });
-    if (res) logger.info(`Deleted status: ${res}. Chat id ${chat_id}`);
-    return res ? true : false;
-};
 
 export {
     Lot,
     createNewLot,
-    updateStatusByLotNumber,
+    updateStatusBybot_id,
     findLotBylotNumber,
     findLotsByStatus,
     updateLotIDByLotNumber,
     findLotsByStatusAndState,
     findLotsByStatusAndRegion,
     lotExistsInDatabase,
-    findLotByBotId
+    findLotByBotId,
+    updateStatusByLotNumber
 };   

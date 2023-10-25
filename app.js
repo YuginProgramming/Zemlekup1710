@@ -12,7 +12,9 @@ export { bot, admin };
 const main = async () => {
   const models = {
       list:  [
-          'users'
+          'users',
+          'lots',
+          'reservs'
       ]
   };
   // DB

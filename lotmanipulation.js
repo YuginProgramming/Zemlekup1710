@@ -2,6 +2,7 @@ import { readGoogle } from './crud.js';
 import { dataBot } from './values.js';
 import { createNewLot } from './models/lots.js';
 import { lotExistsInDatabase } from './models/lots.js';
+import { createNewReserv } from './models/reservations.js';
 
 
 
@@ -14,8 +15,8 @@ const getLotData = async (lotNumber) => {
         user_name: data[9],
         user_id: data[10],
         region: data[21],
-        lot_status: data[13],
-        lotNumber: lotNumber-1,
+        lot_status: 'new',
+        lotNumber: lotNumber,
         area: data[18],
         price: data[19],
         revenue: data[20],
@@ -25,9 +26,9 @@ const getLotData = async (lotNumber) => {
     };
     if (lotData?.bot_id) {
         const result = await lotExistsInDatabase(lotData?.bot_id);
-        if (result) return
+        if (result) return;
+        const newReserv = await createNewReserv(lotData.bot_id);
     }
-    
     const newLot = await createNewLot(lotData);
     console.log(newLot);
 }
