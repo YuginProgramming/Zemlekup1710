@@ -223,6 +223,12 @@ const findLotsByStatusAndState = async (status, state) => {
     return;
 };
 
+const findLotsByStatusAndChatID = async (status, chatId) => {
+    const res = await Lot.findAll({ where: { lot_status: status, user_id: chatId } });
+    if (res.length > 0) return res.map(el => el.dataValues);
+    return;
+};
+
 const findLotsByStatusAndRegion = async (status, region) => {
     const res = await Lot.findAll({ where: { lot_status: status, region } });
     if (res.length > 0) return res.map(el => el.dataValues);
@@ -248,5 +254,6 @@ export {
     findLotsByStatusAndRegion,
     lotExistsInDatabase,
     findLotByBotId,
-    updateStatusByLotNumber
+    updateStatusByLotNumber,
+    findLotsByStatusAndChatID
 };   
