@@ -209,7 +209,7 @@ export const anketaListiner = async() => {
           recentMessage: message.message_id,
         })
       }
-
+//
       switch (msg.text) {
         case '/reserved': 
           const data = await findLotsByStatusAndChatID('reserve', chatId);
