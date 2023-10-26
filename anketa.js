@@ -12,7 +12,7 @@ import {
   updateUserByChatId,
   findUserByChatId
 } from './models/users.js';
-import { updateReservist_idByLotNumber, findReservByLotNumber, clearResrvBybot_id } from './models/reservations.js';
+import { updateReservist_idByLotNumber, findReservByLotNumber, clearResrvBybot_id, findReservsByChatId } from './models/reservations.js';
 import { updateStatusBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber, findLotsByStatusAndChatID } from './models/lots.js';
 import { myLotsDataList } from './modules/mylots.js';
 import { addUserToWaitingList } from './modules/waitinglist.js';
@@ -21,6 +21,8 @@ import { regionFilterKeyboard, sendFiltredByRegToChat } from './modules/regionfi
 import { stateFilterKeyboard } from './modules/statefilter.js';
 import { sendAllLots } from './modules/allLotsToChat.js';
 import { messageText } from './modules/ordermessage.js';
+import { checkReservs } from './modules/checkReservs.js';
+
 export const anketaListiner = async() => {
     bot.setMyCommands([
       {command: '/start', description: 'Почати'},
@@ -102,6 +104,10 @@ export const anketaListiner = async() => {
           bot.sendMessage(chatId, phrases.aleadySold);
 
         }
+        /*
+        const reservs = await checkReservs(chatId);
+        if (!reservs) return;
+        */
       } else if(checkRegex(action, 'state')) {
         const stateName = cuttingCallbackData(action, 'state');
         console.log(stateName);
@@ -213,7 +219,6 @@ export const anketaListiner = async() => {
       switch (msg.text) {
         case '/reserved': 
           const data = await findLotsByStatusAndChatID('reserve', chatId);
-          console.log(`Data: ${data}`)
           if (!data) { await bot.sendMessage(chatId, `У вас немає заброньованих ділянок`); 
           } else {
             await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);

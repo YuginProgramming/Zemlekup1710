@@ -8,6 +8,7 @@ import { bot } from "../app.js";
 }
   const sendAllLots = async (chatId) => {
     const lots = await findLotsByStatus('new');
+    if (!lots) return;
     const lotsData = lots.map(el => getLotContentFromData(el));
     const sendLotsToChat = lotsData.map(async (element, index) => {
             const rowNumber = lots[index].lotNumber;

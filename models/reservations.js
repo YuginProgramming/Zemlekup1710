@@ -84,11 +84,18 @@ const findReservByLotNumber = async (bot_id) => {
     return res;
 };
 
+const findReservsByChatId = async (ChatId) => {
+    const res = await Reserv.findAll({ where: { reservist_id: ChatId } });
+    if (res) return res;
+    return res;
+};
+
 export {
     Reserv,
     createNewReserv,
     updateReservist_idByLotNumber,
     findReservByLotNumber,
     updateWaitlist_idsByLotNumber,
-    clearResrvBybot_id
+    clearResrvBybot_id,
+    findReservsByChatId
 };   
