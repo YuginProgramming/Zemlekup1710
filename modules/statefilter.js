@@ -3,6 +3,7 @@ import { bot } from "../app.js";
 
 export const stateFilterKeyboard = async (chatId) => {
     const stateData = await findLotsByStatus('new');
+    if (!stateData) return;
     let allStates = [];
     stateData.forEach(item => {
         if (item?.state) {

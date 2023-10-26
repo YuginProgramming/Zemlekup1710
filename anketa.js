@@ -13,14 +13,14 @@ import {
   findUserByChatId
 } from './models/users.js';
 import { updateReservist_idByLotNumber, findReservByLotNumber, clearResrvBybot_id } from './models/reservations.js';
-import { updateStatusBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber } from './models/lots.js';
+import { updateStatusBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber, findLotsByStatusAndChatID } from './models/lots.js';
 import { myLotsDataList } from './modules/mylots.js';
 import { addUserToWaitingList } from './modules/waitinglist.js';
 import { getLotData } from './lotmanipulation.js';
 import { regionFilterKeyboard, sendFiltredByRegToChat } from './modules/regionfilter.js';
 import { stateFilterKeyboard } from './modules/statefilter.js';
 import { sendAllLots } from './modules/allLotsToChat.js';
-
+import { messageText } from './modules/ordermessage.js';
 export const anketaListiner = async() => {
     bot.setMyCommands([
       {command: '/start', description: 'Почати'},
@@ -60,6 +60,7 @@ export const anketaListiner = async() => {
             if (!userInfo) await createNewUserByChatId(chatId);
             await writeGoogle(ranges.statusCell(selectedLot), [['reserve']]); //мішають чергам
             await updateStatusBybot_id(lotData?.bot_id, 'reserve');
+            await updateLotIDByLotNumber(userInfo.lotNumber, chatId);
             await editingMessageReserved(selectedLot); //мішають чергам
             if (userInfo?.isAuthenticated) {
               logger.info(`*User: ${userInfo?.firstname} reserved lot#${selectedLot}. Contact information: ${userInfo?.contact}*`);
@@ -208,9 +209,26 @@ export const anketaListiner = async() => {
           recentMessage: message.message_id,
         })
       }
-
+//
       switch (msg.text) {
         case '/reserved': 
+          const data = await findLotsByStatusAndChatID('reserve', chatId);
+          console.log(`Data: ${data}`)
+          if (!data) { await bot.sendMessage(chatId, `У вас немає заброньованих ділянок`); 
+          } else {
+            await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);
+            data.forEach(async item => {
+              await bot.sendMessage(chatId, `📊 ${item.area} га, ₴  ${item.price} ( ${item.price/item.area} грн/га) 
+дохідність ${item.revenue}% 
+очікуваний річний дохід  ${item.price*item.revenue/100} грн
+${item.cadastral_number} 
+${item.state} область, ${item.region} район 
+🚜 орендар: ${item.tenant} , ${item.lease_term} років
+                      
+              `, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${item.lotNumber}` }]] } });
+            })
+          }
+        /*
           const lotsStatus = await readGoogle(ranges.statusColumn);
           const idColumn = await readGoogle(ranges.user_idColumn);
           const indices = lotsStatus.reduce((acc, status, index) => {
@@ -227,7 +245,7 @@ export const anketaListiner = async() => {
               bot.sendMessage(chatId, element);
             });
           } else await bot.sendMessage(chatId, `У вас немає заброньованих ділянок`);
-          
+          */
           break;
         case '/filter': 
           await stateFilterKeyboard(chatId);
