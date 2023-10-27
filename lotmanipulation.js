@@ -30,7 +30,6 @@ const getLotData = async (lotNumber) => {
         const newReserv = await createNewReserv(lotData.bot_id);
     }
     const newLot = await createNewLot(lotData);
-    console.log(newLot);
 }
 
 const addDataToDb = async (lotNumber) => {
