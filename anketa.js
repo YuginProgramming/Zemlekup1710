@@ -104,6 +104,8 @@ export const anketaListiner = async() => {
           bot.sendMessage(chatId, phrases.aleadySold);
 
         }
+        //тут поки приховали
+        
         /*
         const reservs = await checkReservs(chatId);
         if (!reservs) return;
