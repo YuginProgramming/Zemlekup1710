@@ -95,8 +95,8 @@ const createNewLot = async (lotData) => {
     return res;
 };
 
-const updateStatusBybot_id = async (bot_id, status) => {
-    const res = await Lot.update({ lot_status: status } , { where: { bot_id } });
+const updateStatusAndUserIdBybot_id = async (bot_id, status, chat_id) => {
+    const res = await Lot.update({ lot_status: status, user_id: chat_id } , { where: { bot_id } });
     if (res[0]) {
         const data = await findLotByBotId(bot_id);
         if (data) {
@@ -246,7 +246,7 @@ const findUserByChatId = async (chat_id) => {
 export {
     Lot,
     createNewLot,
-    updateStatusBybot_id,
+    updateStatusAndUserIdBybot_id,
     findLotBylotNumber,
     findLotsByStatus,
     updateLotIDByLotNumber,

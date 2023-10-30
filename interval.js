@@ -27,7 +27,7 @@ const checkStatus = (rowNumber, chat_id) => {
             try {
                 await bot.sendMessage(chat_id, 'Ви забронювали ділянку, завершіть замовлення. Незабаром ділянка стане доступною для покупки іншим користувачам');
                 await bot.sendMessage(chat_id, message, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${rowNumber}` }]] } });
-                logger.info(`USER_ID: ${chat_id} received first reminder 🎃 about lot#${rowNumber}`);
+                logger.info(`USER_ID:  received first reminder about chatId#`);
             } catch (error) {
                 logger.error(`Impossible to send remind about lot#${rowNumber}. Error: ${err}`);
             }

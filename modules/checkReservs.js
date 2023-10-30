@@ -9,9 +9,9 @@ export const checkReservs = async (chatId) => {
     } else {
         await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);
         reservs.forEach(async item => {
-            console.log(`LANDS: ${item.bot_id}`);
+
             const lot = await findLotByBotId(item.bot_id);
-            console.log(`BASE:${JSON.stringify(lot)}`);
+            
             if (lot) {
                 bot.sendMessage(chatId, `📊 ${lot.area} га, ₴  ${lot.price} ( ${(lot.price/lot.area).toFixed(2)} грн/га) 
 дохідність ${lot.revenue}% 

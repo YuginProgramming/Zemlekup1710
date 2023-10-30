@@ -13,7 +13,7 @@ import {
   findUserByChatId
 } from './models/users.js';
 import { updateReservist_idByLotNumber, findReservByLotNumber, clearResrvBybot_id, findReservsByChatId } from './models/reservations.js';
-import { updateStatusBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber, findLotsByStatusAndChatID } from './models/lots.js';
+import { updateStatusAndUserIdBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber, findLotsByStatusAndChatID } from './models/lots.js';
 import { myLotsDataList } from './modules/mylots.js';
 import { addUserToWaitingList } from './modules/waitinglist.js';
 import { getLotData } from './lotmanipulation.js';
@@ -50,7 +50,7 @@ export const anketaListiner = async() => {
         let selectedLot = query.data;
         const choosenLotStatus = await readGoogle(ranges.statusCell(selectedLot));
         const lotNumber = selectedLot;
-        console.log(lotNumber)
+        
         let lotData = await findLotBylotNumber(lotNumber);
         if (!lotData) {
           const newLot = await getLotData(selectedLot);
@@ -61,8 +61,8 @@ export const anketaListiner = async() => {
           try {
             if (!userInfo) await createNewUserByChatId(chatId);
             await writeGoogle(ranges.statusCell(selectedLot), [['reserve']]); //мішають чергам
-            await updateStatusBybot_id(lotData?.bot_id, 'reserve');
-            await updateLotIDByLotNumber(userInfo.lotNumber, chatId);
+            await updateStatusAndUserIdBybot_id(lotData?.bot_id, 'reserve', chatId);
+            
             await editingMessageReserved(selectedLot); //мішають чергам
             if (userInfo?.isAuthenticated) {
               logger.info(`*User: ${userInfo?.firstname} reserved lot#${selectedLot}. Contact information: ${userInfo?.contact}*`);
@@ -225,9 +225,9 @@ export const anketaListiner = async() => {
           } else {
             await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);
             data.forEach(async item => {
-              await bot.sendMessage(chatId, `📊 ${item.area} га, ₴  ${item.price} ( ${item.price/item.area} грн/га) 
+              await bot.sendMessage(chatId, `📊 ${item.area} га, ₴  ${item.price} ( ${(item.price/item.area).toFixed(0)} грн/га) 
 дохідність ${item.revenue}% 
-очікуваний річний дохід  ${item.price*item.revenue/100} грн
+очікуваний річний дохід  ${(item.price*item.revenue/100).toFixed(0)} грн
 ${item.cadastral_number} 
 ${item.state} область, ${item.region} район 
 🚜 орендар: ${item.tenant} , ${item.lease_term} років

@@ -17,10 +17,10 @@ const main = async () => {
             Reserv.sync(),
         ]);
         
-    /*    // add column sctipt example
+    // add column sctipt example
      await sequelize.queryInterface.addColumn('reservs', 'bot_id', {
          type: sequelize.Sequelize.STRING,
-         allowNull: false,
+         allowNull: true,
        });
 
     //change column type example
@@ -30,7 +30,7 @@ const main = async () => {
         allowNull: true,
       });
       
-     */   
+     
         if (DEBUG && syncState) {
             const pseudoRandom = () => Math.floor(Math.random() * 10000);
             const userData = {
