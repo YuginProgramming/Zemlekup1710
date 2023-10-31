@@ -200,12 +200,9 @@ const lotExistsInDatabase = async (bot_id) => {
 // Check lot by BOT_ID
 const findLotByBotId = async (bot_id) => {
     const res = await Lot.findOne({ where: { bot_id } });
-
     if (res) {
-      //  console.log(`Lot with bot_id ${bot_id} found in the database:`, res.dataValues);
         return res.dataValues;
     } else {
-      //  console.log(`Lot with bot_id ${bot_id} not found in the database.`);
         return;
     }
 };
@@ -235,16 +232,16 @@ const findLotsByStatusAndRegion = async (status, region) => {
     return;
 };
 
-
-const findUserByChatId = async (chat_id) => {
-    const res = await User.findOne({ where: { chat_id: chat_id } });
-    if (res) return res.dataValues;
-    return res;
+const findAllLots = async () => {
+    const res = await Lot.findAll({ where: {  } });
+    if (res.length > 0) return res.map(el => el.dataValues);
+    return;
 };
 
 
 export {
     Lot,
+    findAllLots,
     createNewLot,
     updateStatusBybot_id,
     findLotBylotNumber,

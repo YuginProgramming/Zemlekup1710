@@ -8,6 +8,7 @@ import { findALLUsers, userIsBanUpdate, findUserByChatId, deleteUserByChatId } f
 import { getLotData } from './lotmanipulation.js';
 import { createNewReserv } from './models/reservations.js';
 import { addLotToDb } from "./modules/addLotToDb.js";
+import { updateDB } from "./modules/updateDatabase.js";
 /*
 const filterKeyboard = async (chatId, filterName, range) => {
   const stateValues = await readGoogle(range);
@@ -130,20 +131,21 @@ const addLotById = () => {
   admin.on('message', async (message) => {
     if (message.text.startsWith('add')) {
       try {
-        // Extract the search value from the message
         const searchValue = message.text.replace('add', '').trim();
-        
-        // Call the function with the extracted search value
         const lot = await addLotToDb(searchValue);
-        
-
         if (lot && lot.length > 0) {
-          // Construct the message with the values from the lot array
           const responseMessage = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
           console.log(responseMessage);
         }
       } catch (error) {
         console.error(error);
+      }
+    } else if (message.text == 'updateDB') {
+      try {
+        console.log('UPDATEDB')
+        await updateDB();
+      } catch (error) {
+        console.log(error);
       }
     }
   });
