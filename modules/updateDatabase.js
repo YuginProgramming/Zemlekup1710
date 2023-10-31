@@ -1,7 +1,7 @@
 import { readGoogle } from '../crud.js';
 import { ranges, dataBot } from '../values.js';
 import { findAllLots, findLotByBotId } from '../models/lots.js';
-//шось якась фігня
+//шось якась фігняhgmkjhkhjkjhkgjk
 
 function compareObjects(obj1, obj2) {
     for (const key in obj1) {
