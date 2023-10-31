@@ -78,6 +78,10 @@ const autoPosting = async () => {
 const userMenegment = () => {
   admin.on('message', async (message) => {
     const text = message.text;
+    if (!text) {
+      // Handle the case when text is not defined
+      return;
+    }
     const command = text.split(' ');
     switch (command[0]) {
       case 'update': 
@@ -128,19 +132,22 @@ const postingLots = () => {
 
 const addLotById = () => {
   admin.on('message', async (message) => {
-    if (message.text.startsWith('add')) {
+    // Check if message is defined and has the text property
+    if (message && message.text) {
       try {
-        // Extract the search value from the message
-        const searchValue = message.text.replace('add', '').trim();
-        
-        // Call the function with the extracted search value
-        const lot = await addLotToDb(searchValue);
-        
+        // Ensure that message.text is a string before using startsWith
+        if (typeof message.text === 'string' && message.text.startsWith('add')) {
+          // Extract the search value from the message
+          const searchValue = message.text.replace('add', '').trim();
+          
+          // Call the function with the extracted search value
+          const lot = await addLotToDb(searchValue);
 
-        if (lot && lot.length > 0) {
-          // Construct the message with the values from the lot array
-          const responseMessage = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
-          console.log(responseMessage);
+          if (lot && lot.length > 0) {
+            // Construct the message with the values from the lot array
+            const responseMessage = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
+            console.log(responseMessage);
+          }
         }
       } catch (error) {
         console.error(error);
@@ -148,6 +155,7 @@ const addLotById = () => {
     }
   });
 };
+
 /*
 const sendAvaliableToChat = async (chatId, bot) => {
   const readedStatus = await readGoogle(ranges.statusColumn);
