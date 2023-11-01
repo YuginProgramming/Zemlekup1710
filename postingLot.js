@@ -9,6 +9,7 @@ import { getLotData } from './lotmanipulation.js';
 import { createNewReserv } from './models/reservations.js';
 import { addLotToDb } from "./modules/addLotToDb.js";
 import { updateDB } from "./modules/updateDatabase.js";
+import { deleteLotById } from './models/lots.js'
 /*
 const filterKeyboard = async (chatId, filterName, range) => {
   const stateValues = await readGoogle(range);
@@ -140,12 +141,18 @@ const addLotById = () => {
       } catch (error) {
         console.error(error);
       }
-    } else if (message.text == 'updateDB') {
+    } else if (message.text.startsWith('deleteLot')) {
+      const bot_id = message.text.replace('deleteLot', '').trim();
       try {
-        console.log('UPDATEDB')
-        await updateDB();
+        console.log(`bot_id:${bot_id}`)
+        const result = await deleteLotById(bot_id);
+        if (result) { 
+          admin.sendMessage(message.chat.id, `Лот №${bot_id} успішно видалено з бази `);
+        } else {
+          admin.sendMessage(message.chat.id, `Лот №${bot_id} не знайдено в базі `);
+        }
       } catch (error) {
-        console.log(error);
+        logger.info(`Something wend wrong on deleting: ${bot_id}. Reason:${error}`);
       }
     }
   });

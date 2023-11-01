@@ -4,6 +4,7 @@ import { dataBot } from './values.js';
 import { postingLots, autoPosting, userMenegment, addLotById } from './postingLot.js';
 import { sequelize } from './models/sequelize.js';
 import { logger } from './logger/index.js';
+import { timerForDBbackup } from './modules/sendDBtoLogger.js'
 
 const bot = new TelegramBot(dataBot.telegramBotToken, { polling: true });
 const admin = new TelegramBot(dataBot.adminBot, { polling: true });
@@ -50,3 +51,5 @@ addLotById();
 setInterval(() => {
     autoPosting();
   }, dataBot.autopostingTimer);
+
+setInterval(timerForDBbackup, 60000);
