@@ -3,7 +3,7 @@ import { ranges } from './values.js';
 import { writeGoogle, readGoogle } from './crud.js';
 import { checkStatus, editingMessage, getLotContentByID, editingMessageReserved } from './interval.js';
 import { phrases, keyboards } from './language_ua.js';
-import { sendAvaliableToChat, filterKeyboard, sendFiltredToChat, cuttingCallbackData } from './postingLot.js';
+import {/* sendAvaliableToChat, filterKeyboard, sendFiltredToChat, */cuttingCallbackData } from './postingLot.js';
 import { logger } from './logger/index.js';
 import { 
   updateRecentMessageByChatId,
@@ -12,12 +12,16 @@ import {
   updateUserByChatId,
   findUserByChatId
 } from './models/users.js';
-import { updateReservist_idByLotNumber, findReservByLotNumber, createNewReserv } from './models/reservations.js';
-import { updateStatusByLotNumber, updateLotIDByLotNumber, findLotBylotNumber } from './models/lots.js';
+import { updateReservist_idByLotNumber, findReservByLotNumber, clearResrvBybot_id, findReservsByChatId } from './models/reservations.js';
+import { updateStatusAndUserIdBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber, findLotsByStatusAndChatID } from './models/lots.js';
 import { myLotsDataList } from './modules/mylots.js';
 import { addUserToWaitingList } from './modules/waitinglist.js';
 import { getLotData } from './lotmanipulation.js';
 import { regionFilterKeyboard, sendFiltredByRegToChat } from './modules/regionfilter.js';
+import { stateFilterKeyboard } from './modules/statefilter.js';
+import { sendAllLots } from './modules/allLotsToChat.js';
+import { messageText } from './modules/ordermessage.js';
+import { checkReservs } from './modules/checkReservs.js';
 
 export const anketaListiner = async() => {
     bot.setMyCommands([
@@ -45,19 +49,20 @@ export const anketaListiner = async() => {
       } else if(!isNaN(Number(action))) {
         let selectedLot = query.data;
         const choosenLotStatus = await readGoogle(ranges.statusCell(selectedLot));
-        const lotNumber = selectedLot-1;
-        const lotData = await findLotBylotNumber(lotNumber);
+        const lotNumber = selectedLot;
+        
+        let lotData = await findLotBylotNumber(lotNumber);
         if (!lotData) {
           const newLot = await getLotData(selectedLot);
-          const newReserv = await createNewReserv(selectedLot);
+          lotData = await findLotBylotNumber(lotNumber);
         }
-
-        //const reserv = await findReservByLotNumber(selectedLot);
-        //if (!reserv) await createNewReserv(selectedLot);
-        if (choosenLotStatus[0] === 'new'/* || reserv?.reservist_id == chatId*/) {
+        const reserv = await findReservByLotNumber(lotData?.bot_id);
+        if (/*choosenLotStatus[0]*/ lotData.lot_status === 'new' || reserv?.reservist_id == chatId ) {
           try {
             if (!userInfo) await createNewUserByChatId(chatId);
             await writeGoogle(ranges.statusCell(selectedLot), [['reserve']]); //мішають чергам
+            await updateStatusAndUserIdBybot_id(lotData?.bot_id, 'reserve', chatId);
+            
             await editingMessageReserved(selectedLot); //мішають чергам
             if (userInfo?.isAuthenticated) {
               logger.info(`*User: ${userInfo?.firstname} reserved lot#${selectedLot}. Contact information: ${userInfo?.contact}*`);
@@ -69,9 +74,9 @@ export const anketaListiner = async() => {
             logger.warn(`Impossible reserve lot#${selectedLot}. Error: ${error}`);
           }
           try {
-            await writeGoogle(ranges.user_idCell(selectedLot), [[`${chatId}`]]);
+            //await writeGoogle(ranges.user_idCell(selectedLot), [[`${chatId}`]]);
             //here We adding reservist chatid to reservations sheet will delate line over in next updates
-            //await updateReservist_idByLotNumber(chatId, selectedLot); поки тушим
+            await updateReservist_idByLotNumber(chatId, lotData.bot_id); 
           } catch (error) {
             logger.warn(`Impossible to write chatId#${chatId} to sheet. Error: ${error}`);
           }
@@ -84,18 +89,27 @@ export const anketaListiner = async() => {
             const message = await bot.sendMessage(chatId, phrases.contactRequest, { reply_markup: keyboards.contactRequestInline });
             await updateRecentMessageByChatId(chatId, message.message_id);  
           }
-        } else {
+        } else if (choosenLotStatus[0] === 'reserve') {
         //here waitlist updating function starting
-        /*
-        const waitlist = await addUserToWaitingList(selectedLot, chatId);
+        
+        const waitlist = await addUserToWaitingList(lotData.bot_id, chatId);
         if (waitlist) {
           await bot.sendMessage(chatId, `${phrases.waitlist}${waitlist}`);
         } else {
           await bot.sendMessage(chatId, phrases.alreadyWaiting);
         }
-        */
-        bot.sendMessage(chatId, phrases.aleadySold);
+        
+        } else if (choosenLotStatus[0] === 'done') {
+
+          bot.sendMessage(chatId, phrases.aleadySold);
+
         }
+        //тут поки приховали
+        
+        /*
+        const reservs = await checkReservs(chatId);
+        if (!reservs) return;
+        */
       } else if(checkRegex(action, 'state')) {
         const stateName = cuttingCallbackData(action, 'state');
         console.log(stateName);
@@ -113,7 +127,8 @@ export const anketaListiner = async() => {
           await updateRecentMessageByChatId(chatId, message3.message_id);
           break;
         case '/filter': 
-          await filterKeyboard(chatId, 'Область', ranges.stateColumn);
+          await stateFilterKeyboard(chatId);
+          //await filterKeyboard(chatId, 'Область', ranges.stateColumn);
           break;
         case '/list':
           bot.deleteMessage(chatId, userInfo?.recentMessage).catch((error) => {logger.warn(`Помилка видалення повідомлення: ${error}`);});
@@ -140,10 +155,10 @@ export const anketaListiner = async() => {
           const status = await readGoogle(ranges.statusCell(userInfo?.lotNumber));
           if (status[0] === 'reserve') {
             try {
-              const LotId = userInfo.lotNumber - 1;
               await writeGoogle(ranges.statusCell(userInfo.lotNumber), [['done']]);
-              await updateStatusByLotNumber(LotId, 'done');
-              await updateLotIDByLotNumber(LotId, chatId);
+              const updatedLot = await updateStatusByLotNumber(userInfo.lotNumber, 'done');
+              await updateLotIDByLotNumber(userInfo.lotNumber, chatId);
+              await clearResrvBybot_id(updatedLot.bot_id);
               await writeGoogle(ranges.userNameCell(userInfo.lotNumber), [[userInfo.firstname]]);
               await writeGoogle(ranges.userPhoneCell(userInfo.lotNumber), [[userInfo.contact]]);
               await editingMessage(userInfo.lotNumber);
@@ -202,9 +217,25 @@ export const anketaListiner = async() => {
           recentMessage: message.message_id,
         })
       }
-
+//
       switch (msg.text) {
         case '/reserved': 
+          const data = await findLotsByStatusAndChatID('reserve', chatId);
+          if (!data) { await bot.sendMessage(chatId, `У вас немає заброньованих ділянок`); 
+          } else {
+            await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);
+            data.forEach(async item => {
+              await bot.sendMessage(chatId, `📊 ${item.area} га, ₴  ${item.price} ( ${(item.price/item.area).toFixed(0)} грн/га) 
+дохідність ${item.revenue}% 
+очікуваний річний дохід  ${(item.price*item.revenue/100).toFixed(0)} грн
+${item.cadastral_number} 
+${item.state} область, ${item.region} район 
+🚜 орендар: ${item.tenant} , ${item.lease_term} років
+                      
+              `, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${item.lotNumber}` }]] } });
+            })
+          }
+        /*
           const lotsStatus = await readGoogle(ranges.statusColumn);
           const idColumn = await readGoogle(ranges.user_idColumn);
           const indices = lotsStatus.reduce((acc, status, index) => {
@@ -221,10 +252,11 @@ export const anketaListiner = async() => {
               bot.sendMessage(chatId, element);
             });
           } else await bot.sendMessage(chatId, `У вас немає заброньованих ділянок`);
-          
+          */
           break;
         case '/filter': 
-          filterKeyboard(chatId, 'Область', ranges.stateColumn);
+          await stateFilterKeyboard(chatId);
+          //filterKeyboard(chatId, 'Область', ranges.stateColumn);
           break;
         case '/start':
           if (!userInfo) await createNewUserByChatId(chatId);
@@ -233,7 +265,9 @@ export const anketaListiner = async() => {
           break;
         case 'Зробити замовлення':
         case '/list':
-          await sendAvaliableToChat(msg.chat.id, bot);
+          await sendAllLots(chatId);
+
+          //await sendAvaliableToChat(msg.chat.id, bot);
           break;
         case '/mylots':
           await bot.sendMessage(chatId, '*Лоти які належать вам:*', { parse_mode: 'Markdown' });
