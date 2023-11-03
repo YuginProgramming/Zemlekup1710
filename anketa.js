@@ -225,9 +225,8 @@ export const anketaListiner = async() => {
           } else {
             await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);
             data.forEach(async item => {
-              await bot.sendMessage(chatId, `📊 ${item.area} га, ₴  ${item.price} ( ${(item.price/item.area).toFixed(0)} грн/га) 
+              await bot.sendMessage(chatId, `📊 ${item.area} га, ₴  ${item.price} ( ${(item.price/item.area).toFixed(2)} грн/га) 
 дохідність ${item.revenue}% 
-очікуваний річний дохід  ${(item.price*item.revenue/100).toFixed(0)} грн
 ${item.cadastral_number} 
 ${item.state} область, ${item.region} район 
 🚜 орендар: ${item.tenant} , ${item.lease_term} років

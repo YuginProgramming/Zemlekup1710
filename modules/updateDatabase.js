@@ -13,7 +13,7 @@ function compareObjects(obj1, obj2) {
 }
 
 export const updateDB = async () => {
-    const IDsArray = await readGoogle(ranges.lot_idColumn);
+    const IDsArray = await readGoogle(ranges.lotIdColumn);
     IDsArray.forEach( async (element, index) => {
         if (index !== 0) {
             console.log(`element${element}`)

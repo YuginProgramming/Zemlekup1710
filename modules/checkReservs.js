@@ -15,7 +15,6 @@ export const checkReservs = async (chatId) => {
             if (lot) {
                 bot.sendMessage(chatId, `📊 ${lot.area} га, ₴  ${lot.price} ( ${(lot.price/lot.area).toFixed(2)} грн/га) 
 дохідність ${lot.revenue}% 
-очікуваний річний дохід  ${lot.price*lot.revenue/100} грн
 ${lot.cadastral_number} 
 ${lot.state} область, ${lot.region} район 
 🚜 орендар: ${lot.tenant} , ${lot.lease_term} років

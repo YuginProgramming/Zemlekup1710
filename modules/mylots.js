@@ -11,7 +11,6 @@ export const myLotsDataList = async (chatid) => {
         const expectedRevenue = item.price*item.revenue/100;
         const message = `📊 ${item.area} га, ₴  ${item.price} ( ${pricePerArea} грн/га) 
 дохідність ${item.revenue}% 
-очікуваний річний дохід  ${expectedRevenue} грн
 ${item.cadastral_number} 
 ${item.state} область, ${item.region} район 
 🚜 орендар: ${item.tenant} , ${item.lease_term} років

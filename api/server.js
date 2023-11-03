@@ -5,7 +5,7 @@ import { findAllLots } from '../models/lots.js';
 
 export const apiServer = () => {
     app.listen(port, () => {
-        console.log(`Сервер запущено на порту ${port}`);
+        console.log(`Server ON ${port}`);
       });
       
       app.get('/api/lots', async (req, res) => {

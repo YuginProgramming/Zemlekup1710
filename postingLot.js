@@ -135,7 +135,7 @@ const postingLots = () => {
 const addLotById = () => {
   admin.on('message', async (message) => {
     // Check if message is defined and has the text property
-    if (message && message.text) {
+    if (message.text.startsWith('add')) {
       try {
         // Extract the search value from the message
         const searchValue = message.text.replace('add', '').trim();
