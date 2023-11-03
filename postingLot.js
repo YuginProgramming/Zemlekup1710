@@ -8,6 +8,8 @@ import { findALLUsers, userIsBanUpdate, findUserByChatId, deleteUserByChatId } f
 import { getLotData } from './lotmanipulation.js';
 import { createNewReserv } from './models/reservations.js';
 import { addLotToDb } from "./modules/addLotToDb.js";
+import { updateDB } from "./modules/updateDatabase.js";
+import { deleteLotById } from './models/lots.js'
 /*
 const filterKeyboard = async (chatId, filterName, range) => {
   const stateValues = await readGoogle(range);
@@ -135,22 +137,33 @@ const addLotById = () => {
     // Check if message is defined and has the text property
     if (message && message.text) {
       try {
-        // Ensure that message.text is a string before using startsWith
-        if (typeof message.text === 'string' && message.text.startsWith('add')) {
-          // Extract the search value from the message
-          const searchValue = message.text.replace('add', '').trim();
-          
-          // Call the function with the extracted search value
-          const lot = await addLotToDb(searchValue);
+        // Extract the search value from the message
+        const searchValue = message.text.replace('add', '').trim();
+        
+        // Call the function with the extracted search value
+        const lot = await addLotToDb(searchValue);
+        
 
-          if (lot && lot.length > 0) {
-            // Construct the message with the values from the lot array
-            const responseMessage = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
-            console.log(responseMessage);
-          }
+        if (lot && lot.length > 0) {
+          // Construct the message with the values from the lot array
+          const responseMessage = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
+          console.log(responseMessage);
         }
       } catch (error) {
         console.error(error);
+      }
+    } else if (message.text.startsWith('deleteLot')) {
+      const bot_id = message.text.replace('deleteLot', '').trim();
+      try {
+        console.log(`bot_id:${bot_id}`)
+        const result = await deleteLotById(bot_id);
+        if (result) { 
+          admin.sendMessage(message.chat.id, `Лот №${bot_id} успішно видалено з бази `);
+        } else {
+          admin.sendMessage(message.chat.id, `Лот №${bot_id} не знайдено в базі `);
+        }
+      } catch (error) {
+        logger.info(`Something wend wrong on deleting: ${bot_id}. Reason:${error}`);
       }
     }
   });
