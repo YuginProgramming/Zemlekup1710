@@ -2,7 +2,7 @@ import { findLotsByStatus } from '../models/lots.js';
 import { bot } from "../app.js";
 
   const getLotContentFromData = (lot) => {
-    const message = `\u{1F4CA} ${lot.area} га, ₴ ${lot.price.toFixed(2)} ( ${(lot.price/lot.area).toFixed(2)} грн/га) \n дохідність ${lot.revenue} % \n ${lot.cadastral_number} \n ${lot.state} область, ${lot.region} район \n \u{1F69C} орендар: ${lot.tenant}, ${lot.lease_term} років`;
+    const message = `\u{1F4CA} ${lot.area} га, ₴ ${(lot.price * 1).toFixed(2)} ( ${(lot.price * 1 / lot.area).toFixed(2)} грн/га) \n дохідність ${lot.revenue} % \n ${lot.cadastral_number} \n ${lot.state} область, ${lot.region} район \n \u{1F69C} орендар: ${lot.tenant}, ${lot.lease_term} років`;
 
     return message;
 }
