@@ -152,8 +152,9 @@ export const anketaListiner = async() => {
           break;
         case '/comleate':
           bot.deleteMessage(chatId, userInfo?.recentMessage).catch((error) => {logger.warn(`Помилка видалення повідомлення: ${error}`);});
-          const status = await readGoogle(ranges.statusCell(userInfo?.lotNumber));
-          if (status[0] === 'reserve') {
+          //const status = await readGoogle(ranges.statusCell(userInfo?.lotNumber));
+          const status = await findLotBylotNumber(userInfo?.lotNumber);
+          if (status.lot_status === 'reserve') {
             try {
               const updatedLot = await updateStatusByLotNumber(userInfo.lotNumber, 'done');
               await updateLotIDByLotNumber(userInfo.lotNumber, chatId);

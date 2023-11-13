@@ -18,7 +18,6 @@ ${item.state} область, ${item.region} район
 `;
         myLotsList = myLotsList + message;
     });
-    console.log(myLotsList);
     return myLotsList;
 }
 

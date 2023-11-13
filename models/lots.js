@@ -163,7 +163,6 @@ const findLotByBotId = async (bot_id) => {
 
 const findLotsByStatus = async (status) => {
     const res = await Lot.findAll({ where: { lot_status: status } });
-    console.log(res)
     if (res.length > 0) return res.map(el => el.dataValues);
     return;
 };

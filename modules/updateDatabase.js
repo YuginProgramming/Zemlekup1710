@@ -34,10 +34,7 @@ export const updateDB = async () => {
                 tenant: sheet[22],
                 lease_term: sheet[23],
             };
-            console.log(data);
-            console.log(lotData);
             const result = compareObjects(data, lotData);
-            console.log(result);
         }
     });
     

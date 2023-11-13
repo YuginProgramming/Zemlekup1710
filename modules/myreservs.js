@@ -17,7 +17,6 @@ const lotData = (item) => {
 export const myReservedLotsList = async (chatId) => {
     const status = 'reserve';
     let reservedLots = await findLotsByStatusAndChatID(status, chatId);
-    console.log(reservedLots);
     if (!reservedLots) { 
         return;
     } else {
