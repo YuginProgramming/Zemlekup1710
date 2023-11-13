@@ -165,7 +165,7 @@ export const anketaListiner = async() => {
               await writeGoogle(ranges.userNameCell(userInfo.lotNumber), [[userInfo.firstname]]);
               await writeGoogle(ranges.userPhoneCell(userInfo.lotNumber), [[userInfo.contact]]);
               await editingMessage(userInfo.lotNumber);
-              const soldLotContent = await getLotContentByID(userInfo.lotNumber);
+              const soldLotContent = messageText(updatedLot);
               await bot.sendMessage(chatId, phrases.thanksForOrder(userInfo.firstname));
               await bot.sendMessage(chatId, soldLotContent); 
               logger.warn(`*USER_ID: ${chatId} comleate order. Lot#${userInfo.lotNumber}. Name: ${userInfo.firstname}. Contact: ${userInfo.contact}*`);
