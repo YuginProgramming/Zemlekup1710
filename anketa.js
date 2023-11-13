@@ -22,6 +22,7 @@ import { stateFilterKeyboard } from './modules/statefilter.js';
 import { sendAllLots } from './modules/allLotsToChat.js';
 import { messageText } from './modules/ordermessage.js';
 import { checkReservs } from './modules/checkReservs.js';
+import { updateStatusColumnById } from './modules/updateStatusColumnById.js';
 
 export const anketaListiner = async() => {
     bot.setMyCommands([
@@ -60,7 +61,8 @@ export const anketaListiner = async() => {
         if (/*choosenLotStatus[0]*/ lotData.lot_status === 'new' || reserv?.reservist_id == chatId ) {
           try {
             if (!userInfo) await createNewUserByChatId(chatId);
-            await writeGoogle(ranges.statusCell(selectedLot), [['reserve']]); //мішають чергам
+
+            await updateStatusColumnById('reserve', lotData?.bot_id);
             await updateStatusAndUserIdBybot_id(lotData?.bot_id, 'reserve', chatId);
             
             await editingMessageReserved(selectedLot); //мішають чергам
@@ -112,12 +114,10 @@ export const anketaListiner = async() => {
         */
       } else if(checkRegex(action, 'state')) {
         const stateName = cuttingCallbackData(action, 'state');
-        console.log(stateName);
         await regionFilterKeyboard(chatId, stateName);
         // await sendFiltredToChat(chatId, action, ranges.stateColumn);
       } else if(checkRegex(action, 'region')) {
        const regionName = cuttingCallbackData(action, 'region');
-       console.log(regionName);
        await sendFiltredByRegToChat(chatId, regionName);
     }
       switch (action) {
@@ -155,9 +155,11 @@ export const anketaListiner = async() => {
           const status = await readGoogle(ranges.statusCell(userInfo?.lotNumber));
           if (status[0] === 'reserve') {
             try {
-              await writeGoogle(ranges.statusCell(userInfo.lotNumber), [['done']]);
               const updatedLot = await updateStatusByLotNumber(userInfo.lotNumber, 'done');
               await updateLotIDByLotNumber(userInfo.lotNumber, chatId);
+
+              await updateStatusColumnById('done', updatedLot.bot_id);
+
               await clearResrvBybot_id(updatedLot.bot_id);
               await writeGoogle(ranges.userNameCell(userInfo.lotNumber), [[userInfo.firstname]]);
               await writeGoogle(ranges.userPhoneCell(userInfo.lotNumber), [[userInfo.contact]]);
