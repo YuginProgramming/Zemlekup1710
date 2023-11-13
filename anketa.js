@@ -22,7 +22,7 @@ import { stateFilterKeyboard } from './modules/statefilter.js';
 import { sendAllLots } from './modules/allLotsToChat.js';
 import { messageText } from './modules/ordermessage.js';
 import { checkReservs } from './modules/checkReservs.js';
-import { updateStatusColumnById } from './modules/updateStatusColumnById.js';
+import { updateStatusColumnById, updateCustomerDataById } from './modules/updateStatusColumnById.js';
 
 export const anketaListiner = async() => {
     bot.setMyCommands([
@@ -76,7 +76,7 @@ export const anketaListiner = async() => {
             logger.warn(`Impossible reserve lot#${selectedLot}. Error: ${error}`);
           }
           try {
-            //await writeGoogle(ranges.user_idCell(selectedLot), [[`${chatId}`]]);
+            //
             //here We adding reservist chatid to reservations sheet will delate line over in next updates
             await updateReservist_idByLotNumber(chatId, lotData.bot_id); 
           } catch (error) {
@@ -160,10 +160,9 @@ export const anketaListiner = async() => {
               await updateLotIDByLotNumber(userInfo.lotNumber, chatId);
 
               await updateStatusColumnById('done', updatedLot.bot_id);
+              await updateCustomerDataById(userInfo.firstname, userInfo.contact, chatId, updatedLot.bot_id);
 
               await clearResrvBybot_id(updatedLot.bot_id);
-              await writeGoogle(ranges.userNameCell(userInfo.lotNumber), [[userInfo.firstname]]);
-              await writeGoogle(ranges.userPhoneCell(userInfo.lotNumber), [[userInfo.contact]]);
               await editingMessage(userInfo.lotNumber);
               const soldLotContent = messageText(updatedLot);
               await bot.sendMessage(chatId, phrases.thanksForOrder(userInfo.firstname));

@@ -8,7 +8,6 @@ export const myLotsDataList = async (chatid) => {
     let myLotsList = '';
     myLots.forEach(item => {
         const pricePerArea = item.price/item.area;
-        const expectedRevenue = item.price*item.revenue/100;
         const message = `📊 ${item.area} га, ₴  ${item.price} ( ${pricePerArea} грн/га) 
 дохідність ${item.revenue}% 
 ${item.cadastral_number} 
