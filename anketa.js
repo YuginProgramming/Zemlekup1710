@@ -1,7 +1,7 @@
 import { bot } from "./app.js";
 import { ranges } from './values.js';
 import { writeGoogle, readGoogle } from './crud.js';
-import { checkStatus, editingMessage, reservReminderTimerScript, editingMessageReserved } from './interval.js';
+import { editingMessage, reservReminderTimerScript, editingMessageReserved } from './interval.js';
 import { phrases, keyboards } from './language_ua.js';
 import {/* sendAvaliableToChat, filterKeyboard, sendFiltredToChat, */cuttingCallbackData } from './postingLot.js';
 import { logger } from './logger/index.js';
@@ -87,7 +87,6 @@ export const anketaListiner = async() => {
             }
             
             reservReminderTimerScript(lotData?.bot_id, chatId);
-            //checkStatus(selectedLot, chatId);
 
             await updateUserByChatId(chatId, { lotNumber: selectedLot });
 
