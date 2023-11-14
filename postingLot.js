@@ -9,7 +9,7 @@ import { getLotData } from './lotmanipulation.js';
 import { createNewReserv } from './models/reservations.js';
 import { addLotToDb } from "./modules/addLotToDb.js";
 import { updateDB } from "./modules/updateDatabase.js";
-import { deleteLotById } from './models/lots.js'
+import { deleteLotById, updateMessageIdBybot_id } from './models/lots.js'
 /*
 const filterKeyboard = async (chatId, filterName, range) => {
   const stateValues = await readGoogle(range);
@@ -56,22 +56,27 @@ const autoPosting = async () => {
     const lotNumber = pendingLots[index];
     //here adding lot to database
     const newLot = await getLotData(lotNumber);
+
     try {
       const postedLot = await bot.sendMessage(dataBot.channelId, element, { reply_markup: keyboards.channelKeyboard });
       await sendLotToRegistredCustomers(element, lotNumber);
       if (postedLot) {
         try {
           const statusChangeResult = await writeGoogle(ranges.statusCell(lotNumber), [['new']]);
+
           const postingMessageIDResult = await writeGoogle(ranges.message_idCell(lotNumber), [[postedLot.message_id]]);
+          console.log(newLot?.bot_id, postedLot.message_id);
+          await updateMessageIdBybot_id(newLot?.bot_id, postedLot.message_id);
+
           if (statusChangeResult && postingMessageIDResult) {
-            logger.info(`Lot #${lotNumber} successfully posted`);  
+            logger.info(`Lot ${newLot?.bot_id} successfully posted`);  
           }
         } catch (error) {
-          logger.warn(`Lot #${lotNumber} posted. But issues with updating sheet. !PLEASE CHECK! spreadsheet data. Error ${error}`);
+          logger.warn(`Lot ${newLot?.bot_id} posted But issues with updating sheet PLEASE CHECK spreadsheet data Error ${error}`);
         }
       }
     } catch (error) {
-      logger.warn(`Something went wrong on autoposting lot #${lotNumber}. Error ${error}`);
+      logger.warn(`Something went wrong on autoposting lot ${lotNumber} Error ${error}`);
     }
   }
 };
@@ -123,7 +128,10 @@ const postingLots = () => {
               
               const sentMessage = await bot.sendMessage(dataBot.channelId, message, { reply_markup: keyboards.channelKeyboard });
               await sendLotToRegistredCustomers(message, rowNumber);
+
               await writeGoogle(ranges.message_idCell(rowNumber), [[sentMessage.message_id]]);
+              await updateMessageIdBybot_id(newLot?.bot_id, sentMessage.message_id);
+
             }
           } catch (error) {
             console.error(error);
@@ -134,28 +142,17 @@ const postingLots = () => {
 
 const addLotById = () => {
   admin.on('message', async (message) => {
-    // Check if message is defined and has the text property
     if (message.text.startsWith('add')) {
+      const lotNumber = message.text.replace('add', '').trim();
       try {
-        // Extract the search value from the message
-        const searchValue = message.text.replace('add', '').trim();
-        
-        // Call the function with the extracted search value
-        const lot = await addLotToDb(searchValue);
-        
-
-        if (lot && lot.length > 0) {
-          // Construct the message with the values from the lot array
-          const responseMessage = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
-          console.log(responseMessage);
-        }
+        const newLot = await getLotData(lotNumber);
+        admin.sendMessage(message.chat.id, `Лот №${newLot.bot_id} успішно успішно додано чи оновлено `);
       } catch (error) {
-        console.error(error);
+        logger.info(`Something wend wrong on updating ${newLot.bot_id}. Reason:${error}`);
       }
     } else if (message.text.startsWith('deleteLot')) {
       const bot_id = message.text.replace('deleteLot', '').trim();
       try {
-        console.log(`bot_id:${bot_id}`)
         const result = await deleteLotById(bot_id);
         if (result) { 
           admin.sendMessage(message.chat.id, `Лот №${bot_id} успішно видалено з бази `);

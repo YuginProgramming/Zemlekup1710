@@ -120,7 +120,7 @@ const updateRecentMessageByChatId = async (chat_id, recentMessage) => {
             logger.info(`User ${data.chat_id} updated`);
             return data;
         }
-        logger.info(`User ${chat_id} updated, but can't read result data`);
+        logger.info(`User ${chat_id} updated but can't read result data`);
     } 
     return undefined;
 };

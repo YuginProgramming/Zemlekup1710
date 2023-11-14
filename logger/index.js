@@ -43,6 +43,7 @@ const logger = {
     async error(desc) {
         const channel = dataBot.loggerId || -1;
         const log = `🚩 ${this.now} ${desc}`;
+        console.log(channel, log);
         const res = await this.createNewLog(channel, log);
         if (res) {
             console.log(log);

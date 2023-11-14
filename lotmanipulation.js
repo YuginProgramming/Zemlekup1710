@@ -1,8 +1,8 @@
 import { readGoogle } from './crud.js';
 import { dataBot } from './values.js';
 import { createNewLot } from './models/lots.js';
-import { lotExistsInDatabase } from './models/lots.js';
-import { createNewReserv } from './models/reservations.js';
+import { lotExistsInDatabase, findLotByBotId, updateLotBybot_id } from './models/lots.js';
+import { createNewReserv, clearResrvBybot_id } from './models/reservations.js';
 
 
 
@@ -24,12 +24,24 @@ const getLotData = async (lotNumber) => {
         lease_term: data[23],
         bot_id: data[15]
     };
-    if (lotData?.bot_id) {
-        const result = await lotExistsInDatabase(lotData?.bot_id);
-        if (result) return;
-        const newReserv = await createNewReserv(lotData.bot_id);
+
+    if (lotData.bot_id) {
+        const result = await findLotByBotId(lotData.bot_id);
+
+        if (result) {
+            const updatedLot = await updateLotBybot_id(lotData.bot_id, lotData);
+            const updatedReserv = await clearResrvBybot_id(lotData.bot_id);
+            return updatedLot;
+
+        } else {
+            const newLot = await createNewLot(lotData);
+            const newReserv = await createNewReserv(lotData.bot_id);
+            return newLot;
+        }
+        
+    }  else {
+        logger.warn(`Impossible to create lot without bot_id`);
     }
-    const newLot = await createNewLot(lotData);
 }
 
 const addDataToDb = async (lotNumber) => {
@@ -56,7 +68,6 @@ const addDataToDb = async (lotNumber) => {
             bot_id: data[15]
         };
         const newLot = await createNewLot(lotData);
-        console.log(newLot);
         console.log(`Lot with ID ${lotNumber} added to the database.`);
     }
     // else {
