@@ -124,4 +124,4 @@ const editingMessage = async (lotNumber) => {
     }
   } 
 
-export { checkStatus, editingMessage, editingMessageReserved, reservReminderTimerScript };
+export { editingMessage, editingMessageReserved, reservReminderTimerScript };
