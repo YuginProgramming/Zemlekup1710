@@ -1,48 +1,19 @@
 import { bot, admin } from "./app.js";
 import { writeGoogle, readGoogle } from './crud.js';
 import { dataBot, ranges } from './values.js';
-import { getLotContentByID } from './interval.js';
 import { logger } from './logger/index.js';
 import { keyboards } from './language_ua.js';
 import { findALLUsers, userIsBanUpdate, findUserByChatId, deleteUserByChatId } from './models/users.js';
 import { getLotData } from './lotmanipulation.js';
 import { createNewReserv } from './models/reservations.js';
-import { addLotToDb } from "./modules/addLotToDb.js";
 import { updateDB } from "./modules/updateDatabase.js";
-import { deleteLotById, updateMessageIdBybot_id } from './models/lots.js'
-/*
-const filterKeyboard = async (chatId, filterName, range) => {
-  const stateValues = await readGoogle(range);
-  
-  const lotsStatus = await readGoogle(ranges.statusColumn);
-  const lotsStatusData = lotsStatus.slice(1)
-  const statesList = stateValues
-  .slice(1)
-  .filter((value, index) => lotsStatusData[index] === 'new' && value !== undefined)
-  .filter((value, index, self) => self.indexOf(value) === index)
-  .sort((a, b) => {
-    const countA = stateValues.filter(value => value === a).length;
-    const countB = stateValues.filter(value => value === b).length;
-    return countB - countA;
-  });
-  
-  const result = [];
-  const chunkSize = 3; 
+import { deleteLotById, updateMessageIdBybot_id } from './models/lots.js';
 
-  for (let i = 0; i < statesList.length; i += chunkSize) {
-    const chunk = statesList.slice(i, i + chunkSize);
-    const row = chunk.map(state => ({
-      text: state,
-      callback_data: `state${state}`
-    }));
-    result.push(row);
-  };
-
-  bot.sendMessage(chatId, `Виберіть ${filterName}:`, { reply_markup: { inline_keyboard: result } });
-
+const getLotContentByID = async (lotNumber) => {
+  const content = await readGoogle(ranges.postContentLine(lotNumber));
+  const message = `\u{1F4CA} ${content[0]} \n ${content[1]} \n ${content[2]} \n ${content[3]} \n \u{1F69C} ${content[4]}`;
+  return message;
 }
-*/
-
 
 const autoPosting = async () => {
   const statusValues = await readGoogle(ranges.statusColumn);
@@ -166,21 +137,6 @@ const addLotById = () => {
   });
 };
 
-/*
-const sendAvaliableToChat = async (chatId, bot) => {
-  const readedStatus = await readGoogle(ranges.statusColumn);
-  const newRows = readedStatus
-    .map((value, index) => value === "new" ? index + 1 : null)
-    .filter(value => value !== null);
-  const contentPromises = newRows.map(rowNumber => readGoogle(ranges.postContentLine(rowNumber)));
-  const rowDataArray = await Promise.all(contentPromises);
-  rowDataArray.forEach((element, index) => {
-      const rowNumber = newRows[index];
-      const rowText = `\u{1F4CA} ${element[0]} \n ${element[1]} \n ${element[2]} \n ${element[3]} \n \u{1F69C} ${element[4]}`;; // Adds a smiley emoji
-      bot.sendMessage(chatId, rowText, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${rowNumber}` }]] } });
-  });
-};
-*/
 const cuttingCallbackData = (cuttedWord, word) => {
   const regex = new RegExp(`${word}(.+)`, 'i');
   const match = cuttedWord.match(regex);
@@ -190,25 +146,6 @@ const cuttingCallbackData = (cuttedWord, word) => {
   return null;
 };
 
-/*
-const sendFiltredToChat = async (chatId, callback_data, searchRange) => {
-  
-  
-  const searchWord = cuttingCallbackData(callback_data, 'state');
-  const readedValues = await readGoogle(searchRange);
-  const lotsStatus = await readGoogle(ranges.statusColumn);
-
-  const matchedLots = readedValues
-  .map((value, index) => value === searchWord && lotsStatus[index] === 'new' ? index + 1 : null)
-  .filter(value => value !== null);
-  const contentPromises = matchedLots.map(el => getLotContentByID(el));
-  const lotsContent = await Promise.all(contentPromises);
-  lotsContent.forEach((element, index) => {
-    const rowNumber = matchedLots[index];
-    bot.sendMessage(chatId, element, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${rowNumber}` }]] } });
-  });
-}
-*/
 const sendLotToRegistredCustomers = async (message, lotNumber) => {
   const users = await findALLUsers();
   if (!users) return;
@@ -228,4 +165,4 @@ const sendLotToRegistredCustomers = async (message, lotNumber) => {
   logger.info(`*${usersChatId.length} користувачів отримали нагадування про новий лот*`);
 };
 
-export { postingLots, /*sendAvaliableToChat*/ autoPosting, /*filterKeyboard, sendFiltredToChat,*/ userMenegment, cuttingCallbackData, addLotById }
+export { postingLots, autoPosting, userMenegment, cuttingCallbackData, addLotById }

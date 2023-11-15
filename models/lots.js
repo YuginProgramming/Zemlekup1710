@@ -152,10 +152,10 @@ const updateLotIDByLotNumber = async (lotNumber, user_id) => {
     if (res[0]) {
         const data = await findLotBylotNumber(lotNumber);
         if (data) {
-            logger.info(`Lot# ${data.chat_id} user_id updated.`);
+            logger.info(`Lot# ${data.chat_id} userid updated.`);
             return data;
         }
-        logger.info(`Lot#  ${lotNumber} updated, but can't read result data`);
+        logger.info(`Lot  ${lotNumber} updated but cant read result data`);
     } 
     return undefined;
 };

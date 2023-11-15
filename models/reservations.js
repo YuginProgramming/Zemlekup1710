@@ -60,7 +60,7 @@ const clearResrvBybot_id = async ( bot_id) => {
             logger.info(`Reserv for ID:#${data.bot_id} updated`);
             return data;
         }
-        logger.info(`Reserv ${bot_id} updated, but can't read result data`);
+        logger.info(`Reserv ${bot_id} updated but cant read result data`);
     } 
     return undefined;
 };

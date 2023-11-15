@@ -1,26 +1,12 @@
-import { readGoogle, writeGoogle } from './crud.js';
-import { dataBot, ranges } from './values.js';
+import { dataBot } from './values.js';
 import { bot } from "./app.js";
 import { logger } from './logger/index.js';
-import { keyboards } from './language_ua.js';
 import { messageText } from './modules/ordermessage.js';
-import { findLotByBotId, updateStatusAndUserIdBybot_id } from './models/lots.js'
-import { updateStatusColumnById } from './modules/updateStatusColumnById.js'
-import { clearResrvBybot_id } from './models/reservations.js'
+import { findLotByBotId, updateStatusAndUserIdBybot_id } from './models/lots.js';
+import { updateStatusColumnById } from './modules/updateStatusColumnById.js';
+import { clearResrvBybot_id } from './models/reservations.js';
 
-
-export const getLotContentByID = async (lotNumber) => {
-    const content = await readGoogle(ranges.postContentLine(lotNumber));
-    const message = `\u{1F4CA} ${content[0]} \n ${content[1]} \n ${content[2]} \n ${content[3]} \n \u{1F69C} ${content[4]}`;
-    return message;
-}
-
-export const getLotContentByBotId = async (lotNumber) => {
-    const content = await readGoogle(ranges.postContentLine(lotNumber));
-    const message = `\u{1F4CA} ${content[0]} \n ${content[1]} \n ${content[2]} \n ${content[3]} \n \u{1F69C} ${content[4]}`;
-    return message;
-}
-
+//Цей файл працює на bot_id І вичищений від сміття
 
 const reservReminderTimerScript = async (bot_id, chat_id) => {
     setTimeout(async () => {
@@ -49,7 +35,7 @@ const reservReminderTimerScript = async (bot_id, chat_id) => {
 
                         await clearResrvBybot_id(bot_id);
 
-                        await refreshMessage(bot_id);
+                        await editingMessage(bot_id, "Знову доступна 😉 \n ");
 
                         await bot.sendMessage(chat_id, message, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${lotData?.lotNumber}` }]] } });
                         logger.info(`USERID: ${chat_id} received second reminder about lotID${bot_id}. Lot avaliable for selling again ⛵`);
@@ -80,48 +66,17 @@ const reservReminderTimerScript = async (bot_id, chat_id) => {
     }, dataBot.firstReminder);
 }
 
-const editingMessage = async (lotNumber) => {
-    const message_id = await (await readGoogle(ranges.message_idCell(lotNumber)))[0];
-    
-    const oldMessage = await readGoogle(ranges.postContentLine(lotNumber));
-    const oldMessageString = oldMessage.join('\n');
-    const newMessage = "📌 " + oldMessageString;
-    
-    try {
-        await bot.editMessageText(newMessage, {chat_id: dataBot.channelId, message_id: message_id});
-    } catch (error) {
-        logger.warn(`Can't edit. Message ID: ${message_id}. Reason: ${error}`);
-    }
-  } 
-
-  const refreshMessage = async (bot_id) => {
+const editingMessage = async (bot_id, note) => {
     const lotData = await findLotByBotId(bot_id);
 
-    if(lotData?.message_id) {
-        logger.info(`Неможливо відредагувати повідомлення. ID повідомлення ${lotData?.message_id}`);
-        return;
-    }
-
     const message = messageText(lotData);
-    const newMessage = "Знову доступна 😉 \n " + message;
-
+    const newMessage = `${note + message}`;
+    
     try {
-        await bot.editMessageText(newMessage, {chat_id: dataBot.channelId, message_id: lotData?.message_id, reply_markup: keyboards.channelKeyboard });
+        await bot.editMessageText(newMessage, {chat_id: dataBot.channelId, message_id: lotData?.message_id});
     } catch (error) {
-        logger.warn(`Can't edit. Message ID: ${lotData?.message_id}. Reason: ${error}`);
+        logger.warn(`Неможливо відредагувати повідомлення. ID повідомлення ${lotData?.message_id}. Reason: ${error}`);
     }
   } 
 
-  const editingMessageReserved = async (lotNumber) => {
-    const message_id = await (await readGoogle(ranges.message_idCell(lotNumber)))[0];
-    const oldMessage = await readGoogle(ranges.postContentLine(lotNumber));
-    const oldMessageString = oldMessage.join('\n');
-    const newMessage = "РЕЗЕРВ 🙄 \n'" + oldMessageString;
-    try {
-        await bot.editMessageText(newMessage, {chat_id: dataBot.channelId, message_id: message_id, });
-    } catch (error) {
-        logger.warn(`Can't edit. Message ID: ${message_id}. Reason: ${error}`);
-    }
-  } 
-
-export { editingMessage, editingMessageReserved, reservReminderTimerScript };
+export { editingMessage, reservReminderTimerScript };

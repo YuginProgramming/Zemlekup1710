@@ -1,9 +1,9 @@
 import { bot } from "./app.js";
 import { ranges } from './values.js';
 import { writeGoogle, readGoogle } from './crud.js';
-import { editingMessage, reservReminderTimerScript, editingMessageReserved } from './interval.js';
+import { editingMessage, reservReminderTimerScript } from './interval.js';
 import { phrases, keyboards } from './language_ua.js';
-import {/* sendAvaliableToChat, filterKeyboard, sendFiltredToChat, */cuttingCallbackData } from './postingLot.js';
+import { cuttingCallbackData } from './postingLot.js';
 import { logger } from './logger/index.js';
 import { 
   updateRecentMessageByChatId,
@@ -69,7 +69,7 @@ export const anketaListiner = async() => {
                 await updateStatusColumnById('reserve', lotData?.bot_id);
                 await updateStatusAndUserIdBybot_id(lotData?.bot_id, 'reserve', chatId);
                 
-                await editingMessageReserved(selectedLot); //мішають чергам
+                await editingMessage(lotData?.bot_id, "РЕЗЕРВ 🙄 \n'"); //мішають чергам
                 if (userInfo?.isAuthenticated) {
                     logger.info(`*User: ${userInfo?.firstname} reserved lot#${selectedLot}. Contact information: ${userInfo?.contact}*`);
                 } else {
@@ -167,11 +167,11 @@ export const anketaListiner = async() => {
               await updateCustomerDataById(userInfo.firstname, userInfo.contact, chatId, updatedLot.bot_id);
 
               await clearResrvBybot_id(updatedLot.bot_id);
-              await editingMessage(userInfo.lotNumber);
+              await editingMessage(updatedLot.bot_id, "📌 ");
               const soldLotContent = messageText(updatedLot);
               await bot.sendMessage(chatId, phrases.thanksForOrder(userInfo.firstname));
               await bot.sendMessage(chatId, soldLotContent); 
-              logger.warn(`*USERID: ${chatId} comleate order. Lot#${userInfo.lotNumber}. Name: ${userInfo.firstname}. Contact: ${userInfo.contact}*`);
+              logger.warn(`*USERID ${chatId} comleate order Lot#${userInfo.lotNumber} Name: ${userInfo.firstname} Contact: ${userInfo.contact}*`);
               //here sanding reminder for users in waiting list that lot they waitng already sold
               await updateUserByChatId(chatId, 
               { 
@@ -240,24 +240,6 @@ ${item.state} область, ${item.region} район
               `, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${item.lotNumber}` }]] } });
             })
           }
-        /*
-          const lotsStatus = await readGoogle(ranges.statusColumn);
-          const idColumn = await readGoogle(ranges.user_idColumn);
-          const indices = lotsStatus.reduce((acc, status, index) => {
-            if (status === 'reserve' && idColumn[index] == chatId) {
-              acc.push(index + 1);
-            }
-            return acc;
-          }, []);
-          if(indices.length > 0) {
-            await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);
-            const contentPromises = indices.map(el => getLotContentByID(el));
-            const lotsContent = await Promise.all(contentPromises);  
-            lotsContent.forEach(element => {
-              bot.sendMessage(chatId, element);
-            });
-          } else await bot.sendMessage(chatId, `У вас немає заброньованих ділянок`);
-          */
           break;
         case '/filter': 
           await stateFilterKeyboard(chatId);
