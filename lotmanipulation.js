@@ -1,10 +1,8 @@
 import { readGoogle } from './crud.js';
 import { dataBot } from './values.js';
 import { createNewLot } from './models/lots.js';
-import { lotExistsInDatabase, findLotByBotId, updateLotBybot_id } from './models/lots.js';
-import { createNewReserv, clearResrvBybot_id } from './models/reservations.js';
-
-
+import { findLotByBotId, updateLotBybot_id } from './models/lots.js';
+import { createNewReserv, clearResrvBybot_id, findReservByLotNumber } from './models/reservations.js';
 
 const getLotData = async (lotNumber) => {
     const range = `${dataBot.googleSheetName}!A${lotNumber}:X${lotNumber}`;
@@ -30,7 +28,12 @@ const getLotData = async (lotNumber) => {
 
         if (result) {
             const updatedLot = await updateLotBybot_id(lotData.bot_id, lotData);
-            const updatedReserv = await clearResrvBybot_id(lotData.bot_id);
+            const reserv = await findReservByLotNumber(lotData.bot_id);
+            if (reserv) {
+                const updatedReserv = await clearResrvBybot_id(lotData.bot_id);
+            } else {
+                const newReserv = await createNewReserv(lotData.bot_id);
+            }
             return updatedLot;
 
         } else {
@@ -44,34 +47,4 @@ const getLotData = async (lotNumber) => {
     }
 }
 
-const addDataToDb = async (lotNumber) => {
-    // Check if the lot already exists in the database
-    //const lotExists = await lotExistsInDatabase(searchValue);
-
-    // Add the lot to the database only if it doesn't exist
-    //if (!lotExists) {
-        const range = `${dataBot.googleSheetName}!A${lotNumber}:X${lotNumber}`;
-        const data = await readGoogle(range);
-        const lotData = {
-            cadastral_number: data[2],
-            state: data[6],
-            user_name: data[9],
-            user_id: data[10],
-            region: data[21],
-            lot_status: data[13],
-            lotNumber: lotNumber-1,
-            area: data[18],
-            price: data[19],
-            revenue: data[20],
-            tenant: data[22],
-            lease_term: data[23],
-            bot_id: data[15]
-        };
-        const newLot = await createNewLot(lotData);
-        console.log(`Lot with ID ${lotNumber} added to the database.`);
-    }
-    // else {
-       // console.log(`Lot with ID ${bot_id} already exists in the database. Skipped.`);
-    //}
-//}
-export { getLotData, addDataToDb };
+export { getLotData };
