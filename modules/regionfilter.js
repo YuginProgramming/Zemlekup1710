@@ -33,6 +33,7 @@ const regionFilterKeyboard = async (chatId, state) => {
 }
   const sendFiltredByRegToChat = async (chatId, region) => {
     const regionLots = await findLotsByStatusAndRegion('new', region);
+    if (!regionLots) return;
     const lotsData = regionLots.map(el => getLotContentFromData(el));
     lotsData.forEach(async (element, index) => {
       const rowNumber = regionLots[index].lotNumber;
