@@ -100,6 +100,8 @@ export const anketaListiner = async() => {
 
           } else if (lotData.lot_status === 'reserve') {
 
+              bot.sendMessage(chatId, 'Ділянку заброньовано');
+            /*
               const waitlist = await addUserToWaitingList(lotData.bot_id, chatId);
 
               if (waitlist) {
@@ -107,7 +109,7 @@ export const anketaListiner = async() => {
               } else {
                   await bot.sendMessage(chatId, phrases.alreadyWaiting);
               }
-          
+          */
           } else if (lotData.lot_status === 'done') {
 
               bot.sendMessage(chatId, phrases.aleadySold);

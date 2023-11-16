@@ -34,10 +34,10 @@ const reservReminderTimerScript = async (bot_id, chat_id) => {
                         await updateStatusColumnById('new', bot_id);
                         await updateStatusAndUserIdBybot_id(bot_id, 'new', '');
 
-                        await moveWaitlistOneStepInFront(bot_id);
-                        await sendSoldToWaitingIDs(bot_id)
+                        //await moveWaitlistOneStepInFront(bot_id);
+                        //await sendSoldToWaitingIDs(bot_id)
 
-                        //await clearResrvBybot_id(bot_id);
+                        await clearResrvBybot_id(bot_id);
 
                         await editingMessage(bot_id, "Знову доступна 😉 \n ");
 
