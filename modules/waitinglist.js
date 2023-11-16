@@ -13,8 +13,8 @@ const hasMatch = (waitlist, chatId) => {
     return false;
 };
 
-const addUserToWaitingList = async (selectedLot, chatId) => {
-    const reservData = await findReservByLotNumber(selectedLot);
+const addUserToWaitingList = async (bot_id, chatId) => {
+    const reservData = await findReservByLotNumber(bot_id);
     let waitlist = reservData.waitlist_ids;
     if (!waitlist) {
         waitlist = [];
@@ -27,7 +27,7 @@ const addUserToWaitingList = async (selectedLot, chatId) => {
     if (!match) {
         waitlist.push(chatId);
         const waitlistString = waitlist.join(', ');
-        const newWaitlist = await updateWaitlist_idsByLotNumber(waitlistString, selectedLot);
+        const newWaitlist = await updateWaitlist_idsByLotNumber(waitlistString, bot_id);
         const updatedStr = newWaitlist.waitlist_ids.toString();
         const updatedArray = updatedStr.split(', ')
         const arrayLength = updatedArray.length;
@@ -35,13 +35,13 @@ const addUserToWaitingList = async (selectedLot, chatId) => {
     }
 };
 
-const moveWaitlistOneStepInFront = async (selectedLot) => {
-    const reservData = await findReservByLotNumber(selectedLot);
+const moveWaitlistOneStepInFront = async (bot_id) => {
+    const reservData = await findReservByLotNumber(bot_id);
     const nextUser = reservData.waitlist_ids[0];
-    const updatedReserv = await updateReservist_idByLotNumber(nextUser, selectedLot);
+    const updatedReserv = await updateReservist_idByLotNumber(nextUser, bot_id);
     bot.sendMessage(nextUser, `Ваша черга на покупку лоту, можете купити лот що вас цікавив`);
     const newWaitlist = reservData.waitlist_ids.shift();
-    const updatedWaitlist = await updateWaitlist_idsByLotNumber(newWaitlist, selectedLot);
+    const updatedWaitlist = await updateWaitlist_idsByLotNumber(newWaitlist, bot_id);
     newWaitlist.forEach(el => {
         try {
             bot.sendMessage(el, `Черга підійшла на одного користувача вперід. Ви #${ [index] + 1 } в черзі`);
@@ -53,8 +53,8 @@ const moveWaitlistOneStepInFront = async (selectedLot) => {
     return updatedReserv.reservist_id;
 };
 
-const sendSoldToWaitingIDs = async (selectedLot) => {
-    const reservData = await findReservByLotNumber(selectedLot);
+const sendSoldToWaitingIDs = async (bot_id) => {
+    const reservData = await findReservByLotNumber(bot_id);
     const usersChatId = reservData?.waitlist_ids;
     const groupSize = 25;
     for (let i = 0; i < usersChatId.length; i += groupSize) {

@@ -5,6 +5,7 @@ import { messageText } from './modules/ordermessage.js';
 import { findLotByBotId, updateStatusAndUserIdBybot_id } from './models/lots.js';
 import { updateStatusColumnById } from './modules/updateStatusColumnById.js';
 import { clearResrvBybot_id } from './models/reservations.js';
+import { moveWaitlistOneStepInFront, sendSoldToWaitingIDs } from './modules/waitinglist.js';
 
 //Цей файл працює на bot_id І вичищений від сміття
 
@@ -33,7 +34,10 @@ const reservReminderTimerScript = async (bot_id, chat_id) => {
                         await updateStatusColumnById('new', bot_id);
                         await updateStatusAndUserIdBybot_id(bot_id, 'new', '');
 
-                        await clearResrvBybot_id(bot_id);
+                        await moveWaitlistOneStepInFront(bot_id);
+                        await sendSoldToWaitingIDs(bot_id)
+
+                        //await clearResrvBybot_id(bot_id);
 
                         await editingMessage(bot_id, "Знову доступна 😉 \n ");
 
