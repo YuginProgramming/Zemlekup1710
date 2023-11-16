@@ -55,7 +55,7 @@ export const anketaListiner = async() => {
           } else {
               const reserv = await findReservByLotNumber(lotData?.bot_id);
               if (!reserv) {
-                  const newLot = await getLotData(action);
+                lotData = await getLotData(action);
               }
           }
           const reserv = await findReservByLotNumber(lotData?.bot_id);
