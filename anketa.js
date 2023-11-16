@@ -49,77 +49,81 @@ export const anketaListiner = async() => {
         await bot.sendMessage(chatId, `Відсутні доступні для купівлі ділянки`);
         return
       } else if(!isNaN(Number(action))) {
-        let selectedLot = query.data;
-        const choosenLotStatus = await readGoogle(ranges.statusCell(selectedLot));
-        const lotNumber = selectedLot;
-        
-        let lotData = await findLotBylotNumber(lotNumber);
+          let selectedLot = query.data;
+          const choosenLotStatus = await readGoogle(ranges.statusCell(selectedLot));
+          const lotNumber = selectedLot;
+          
+          let lotData = await findLotBylotNumber(lotNumber);
 
-        if (!lotData) {
-          const newLot = await getLotData(selectedLot);
-          lotData = await findLotBylotNumber(lotNumber);
-        }
+          if (!lotData) {
+              const newLot = await getLotData(selectedLot);
+              lotData = await findLotBylotNumber(lotNumber);
+          } else {
+              const reserv = await findReservByLotNumber(lotData?.bot_id);
+              if (!reserv) {
+                  const newLot = await getLotData(selectedLot);
+              }
+          }
 
-        const reserv = await findReservByLotNumber(lotData?.bot_id);
+          const reserv = await findReservByLotNumber(lotData?.bot_id);
 
-        if (/*choosenLotStatus[0]*/ lotData.lot_status === 'new' || reserv?.reservist_id == chatId ) {
-            try {
-                if (!userInfo) await createNewUserByChatId(chatId);
+          if (lotData.lot_status === 'new' || reserv?.reservist_id == chatId ) {
+              try {
+                  if (!userInfo) await createNewUserByChatId(chatId);
 
-                await updateStatusColumnById('reserve', lotData?.bot_id);
-                await updateStatusAndUserIdBybot_id(lotData?.bot_id, 'reserve', chatId);
-                
-                await editingMessage(lotData?.bot_id, "РЕЗЕРВ 🙄 \n'"); //мішають чергам
-                if (userInfo?.isAuthenticated) {
-                    logger.info(`*User: ${userInfo?.firstname} reserved lot#${selectedLot}. Contact information: ${userInfo?.contact}*`);
-                } else {
-                    logger.info(`*Unregistred user reserved lot#${selectedLot}, USERID: ${chatId}* `);
-                }
-                await updateChatStatusByChatId(chatId, '');
-            } catch (error) {
-                logger.warn(`Impossible reserve lot#${selectedLot}. Error: ${error}`);
-            }
-            try {
-                //here We adding reservist chatid to reservations sheet will delate line over in next updates
-                await updateReservist_idByLotNumber(chatId, lotData.bot_id); 
-            } catch (error) {
-                logger.warn(`Impossible to write chatId#${chatId} to sheet. Error: ${error}`);
-            }
-            
-            reservReminderTimerScript(lotData?.bot_id, chatId);
+                  await updateStatusColumnById('reserve', lotData?.bot_id);
+                  await updateStatusAndUserIdBybot_id(lotData?.bot_id, 'reserve', chatId);
+                  
+                  await editingMessage(lotData?.bot_id, "РЕЗЕРВ 🙄 \n'"); //мішають чергам
+                  if (userInfo?.isAuthenticated) {
+                      logger.info(`*User: ${userInfo?.firstname} reserved lot#${selectedLot}. Contact information: ${userInfo?.contact}*`);
+                  } else {
+                      logger.info(`*Unregistred user reserved lot#${selectedLot}, USERID: ${chatId}* `);
+                  }
+                  await updateChatStatusByChatId(chatId, '');
+              } catch (error) {
+                  logger.warn(`Impossible reserve lot#${selectedLot}. Error: ${error}`);
+              }
+              try {
+                  //here We adding reservist chatid to reservations sheet will delate line over in next updates
+                  await updateReservist_idByLotNumber(chatId, lotData.bot_id); 
+              } catch (error) {
+                  logger.warn(`Impossible to write chatId#${chatId} to sheet. Error: ${error}`);
+              }
+              
+              reservReminderTimerScript(lotData?.bot_id, chatId);
 
-            await updateUserByChatId(chatId, { lotNumber: selectedLot });
+              await updateUserByChatId(chatId, { lotNumber: selectedLot });
 
-            if (userInfo?.isAuthenticated) {
-              const message = await bot.sendMessage(chatId, `Раді вас знову бачити ${userInfo.firstname}`, { reply_markup: keyboards.finishOrder });
-              await updateRecentMessageByChatId(chatId, message.message_id);  
-            } else {
-              const message = await bot.sendMessage(chatId, phrases.contactRequest, { reply_markup: keyboards.contactRequestInline });
-              await updateRecentMessageByChatId(chatId, message.message_id);  
-            }
-        } else if (choosenLotStatus[0] === 'reserve') {
-            //here waitlist updating function starting
-            
-            const waitlist = await addUserToWaitingList(lotData.bot_id, chatId);
-        if (waitlist) {
-            await bot.sendMessage(chatId, `${phrases.waitlist}${waitlist}`);
-        } else {
-            await bot.sendMessage(chatId, phrases.alreadyWaiting);
-        }
-        
-        } else if (choosenLotStatus[0] === 'done') {
-            bot.sendMessage(chatId, phrases.aleadySold);
-        }
-        //тут поки приховали
-        
-        /*
-        const reservs = await checkReservs(chatId);
-        if (!reservs) return;
-        */
+              if (userInfo?.isAuthenticated) {
+                const message = await bot.sendMessage(chatId, `Раді вас знову бачити ${userInfo.firstname}`, { reply_markup: keyboards.finishOrder });
+                await updateRecentMessageByChatId(chatId, message.message_id);  
+              } else {
+                const message = await bot.sendMessage(chatId, phrases.contactRequest, { reply_markup: keyboards.contactRequestInline });
+                await updateRecentMessageByChatId(chatId, message.message_id);  
+              }
+          } else if (choosenLotStatus[0] === 'reserve') {
+              //here waitlist updating function starting
+              
+              const waitlist = await addUserToWaitingList(lotData.bot_id, chatId);
+          if (waitlist) {
+              await bot.sendMessage(chatId, `${phrases.waitlist}${waitlist}`);
+          } else {
+              await bot.sendMessage(chatId, phrases.alreadyWaiting);
+          }
+          
+          } else if (choosenLotStatus[0] === 'done') {
+              bot.sendMessage(chatId, phrases.aleadySold);
+          }
+          //тут поки приховали
+          
+          /*
+          const reservs = await checkReservs(chatId);
+          if (!reservs) return;
+          */
       } else if(checkRegex(action, 'state')) {
         const stateName = cuttingCallbackData(action, 'state');
         await regionFilterKeyboard(chatId, stateName);
-        // await sendFiltredToChat(chatId, action, ranges.stateColumn);
       } else if(checkRegex(action, 'region')) {
        const regionName = cuttingCallbackData(action, 'region');
        await sendFiltredByRegToChat(chatId, regionName);
