@@ -8,6 +8,7 @@ import { getLotData } from './lotmanipulation.js';
 import { createNewReserv } from './models/reservations.js';
 import { updateDB } from "./modules/updateDatabase.js";
 import { deleteLotById, updateMessageIdBybot_id } from './models/lots.js';
+import { messageText } from './modules/ordermessage.js';
 
 const getLotContentByID = async (lotNumber) => {
   const content = await readGoogle(ranges.postContentLine(lotNumber));
@@ -23,10 +24,12 @@ const autoPosting = async () => {
   const contentPromises = pendingLots.map(el => getLotContentByID(el));
   const lotsContent = await Promise.all(contentPromises);
   for (let index = 0; index < lotsContent.length; index++) {
-    const element = lotsContent[index];
+    //const element = lotsContent[index];
+    
     const lotNumber = pendingLots[index];
     //here adding lot to database
     const newLot = await getLotData(lotNumber);
+    const element = messageText(newLot);
 
     try {
       const postedLot = await bot.sendMessage(dataBot.channelId, element, { reply_markup: keyboards.channelKeyboard });
@@ -95,7 +98,7 @@ const postingLots = () => {
             const newLot = await getLotData(rowNumber);
             const lot = await readGoogle(ranges.postContentLine(rowNumber));
             if (lot && lot.length > 0) {
-              const message = `\u{1F4CA} ${lot[0]} \n ${lot[1]} \n ${lot[2]} \n ${lot[3]} \n \u{1F69C} ${lot[4]}`;
+              const message = messageText(newLot);
               
               const sentMessage = await bot.sendMessage(dataBot.channelId, message, { reply_markup: keyboards.channelKeyboard });
               await sendLotToRegistredCustomers(message, rowNumber);

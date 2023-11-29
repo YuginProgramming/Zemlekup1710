@@ -1,5 +1,5 @@
 import { bot } from "./app.js";
-import { editingMessage, reservReminderTimerScript } from './interval.js';
+import { editingMessage, editingMessageCompleate, reservReminderTimerScript } from './interval.js';
 import { phrases, keyboards } from './language_ua.js';
 import { cuttingCallbackData } from './postingLot.js';
 import { logger } from './logger/index.js';
@@ -67,7 +67,7 @@ export const anketaListiner = async() => {
                   await updateStatusColumnById('reserve', lotData?.bot_id);
                   await updateStatusAndUserIdBybot_id(lotData?.bot_id, 'reserve', chatId);
                   
-                  await editingMessage(lotData?.bot_id, "РЕЗЕРВ 🙄 \n'");
+                  await editingMessage(lotData?.bot_id, "РЕЗЕРВ 🙄 \n");
 
                   if (userInfo?.isAuthenticated) {
                       logger.info(`*User: ${userInfo?.firstname} reserved lot#${action}. Contact information: ${userInfo?.contact}*`);
@@ -171,7 +171,7 @@ export const anketaListiner = async() => {
               await updateCustomerDataById(userInfo.firstname, userInfo.contact, chatId, updatedLot.bot_id);
 
               await clearResrvBybot_id(updatedLot.bot_id);
-              await editingMessage(updatedLot.bot_id, "📌 ");
+              await editingMessageCompleate(updatedLot.bot_id, "📌 ");
               const soldLotContent = messageText(updatedLot);
               await bot.sendMessage(chatId, phrases.thanksForOrder(userInfo.firstname));
               await bot.sendMessage(chatId, soldLotContent); 
@@ -235,6 +235,7 @@ export const anketaListiner = async() => {
           } else {
             await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);
             data.forEach(async item => {
+              
               await bot.sendMessage(chatId, `📊 ${item.area} га, ₴  ${item.price} ( ${(item.price/item.area).toFixed(2)} грн/га) 
 дохідність ${item.revenue}% 
 ${item.cadastral_number} 
