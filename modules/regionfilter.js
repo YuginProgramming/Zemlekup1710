@@ -1,5 +1,7 @@
 import { findLotsByStatusAndState, findLotsByStatusAndRegion } from '../models/lots.js';
 import { bot } from "../app.js";
+import { messageText } from './ordermessage.js';
+
 
 const regionFilterKeyboard = async (chatId, state) => {
     const stateData = await findLotsByStatusAndState('new', state);
@@ -26,15 +28,11 @@ const regionFilterKeyboard = async (chatId, state) => {
 
   }
 
-  const getLotContentFromData = (lot) => {
-    const message = `\u{1F4CA} ${lot.area} га, ₴ ${lot.price.toFixed(2)} ( ${(lot.price/lot.area).toFixed(2)} грн/га) \n дохідність ${lot.revenue} % \n ${lot.cadastral_number} \n ${lot.state} область, ${lot.region} район \n \u{1F69C} орендар: ${lot.tenant}, ${lot.lease_term} років`;
-
-    return message;
-}
+  
   const sendFiltredByRegToChat = async (chatId, region) => {
     const regionLots = await findLotsByStatusAndRegion('new', region);
     if (!regionLots) return;
-    const lotsData = regionLots.map(el => getLotContentFromData(el));
+    const lotsData = regionLots.map(el => messageText(el));
     lotsData.forEach(async (element, index) => {
       const rowNumber = regionLots[index].lotNumber;
       await bot.sendMessage(chatId, element, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${rowNumber}` }]] } });

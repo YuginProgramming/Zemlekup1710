@@ -1,9 +1,12 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 const app = express();
 const port = 3001;
-import { findAllLots } from '../models/lots.js';
+import { findAllLots, deleteLotById, updateLotBybot_id } from '../models/lots.js';
 
 export const apiServer = () => {
+    app.use(bodyParser.json());
+    
     app.listen(port, () => {
         console.log(`Server ON ${port}`);
       });
@@ -14,11 +17,20 @@ export const apiServer = () => {
           res.json(users);
       });
         
-      app.post('/api/lots', (req, res) => {
+      app.post('/api/lots', async (req, res) => {
           const command = req.body;
           console.log(command);
+          if (command?.action === 'delete') {
+            const removingLot = await deleteLotById(command?.bot_id);
+            res.json(removingLot);
+          }
+          if (command?.action === 'update') {
+            const updatingLot = await updateLotBybot_id(command?.bot_id, command?.lotData);
+            res.json(updatingLot);
+          }
+          console.log(command);
           //const newUser = /* ... */;
-          res.status(201).json('newUser');
+          //res.status(201).json('newUser');
       });
         
 }
