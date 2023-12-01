@@ -74,7 +74,12 @@ Lot.init({
     bot_id: {
         type: DataTypes.TEXT,
         allowNull: true
-    }  
+    },
+    comment: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
+
 
 }, {
     freezeTableName: false,

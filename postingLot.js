@@ -6,7 +6,6 @@ import { keyboards } from './language_ua.js';
 import { findALLUsers, userIsBanUpdate, findUserByChatId, deleteUserByChatId } from './models/users.js';
 import { getLotData } from './lotmanipulation.js';
 import { createNewReserv } from './models/reservations.js';
-import { updateDB } from "./modules/updateDatabase.js";
 import { deleteLotById, updateMessageIdBybot_id } from './models/lots.js';
 import { messageText } from './modules/ordermessage.js';
 

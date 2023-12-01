@@ -18,10 +18,10 @@ const main = async () => {
         ]);
         
     // add column sctipt example
-    //  await sequelize.queryInterface.addColumn('reservs', 'bot_id', {
-    //      type: sequelize.Sequelize.STRING,
-    //      allowNull: true,
-    //    });
+      await sequelize.queryInterface.addColumn('lots', 'comment', {
+          type: sequelize.Sequelize.STRING,
+          allowNull: true,
+        });
 
     //change column type example
     
@@ -30,10 +30,10 @@ const main = async () => {
     //     allowNull: true,
     //   });
 
-      await sequelize.queryInterface.changeColumn('reservs', 'bot_id', {
-        type: sequelize.Sequelize.STRING,
-        allowNull: true,
-      });
+     // await sequelize.queryInterface.changeColumn('reservs', 'bot_id', {
+     //   type: sequelize.Sequelize.STRING,
+     //   allowNull: true,
+    //  });
      
         if (DEBUG && syncState) {
             const pseudoRandom = () => Math.floor(Math.random() * 10000);

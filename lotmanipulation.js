@@ -20,7 +20,8 @@ const getLotData = async (lotNumber) => {
         revenue: data[20],
         tenant: data[22],
         lease_term: data[23],
-        bot_id: data[15]
+        bot_id: data[15],
+        comment: data[0],
     };
 
     if (lotData.bot_id) {

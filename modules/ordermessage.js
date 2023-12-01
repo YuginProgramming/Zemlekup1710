@@ -8,6 +8,7 @@ export const messageText = (item) => {
     let tenant;
     let lease_term;
     let cadastral_number;
+    let comment;
     if (!isNaN(Number(item.area)) && !(item.area === '')) {
         area = `${item.area} га,`
     } else { area = '' }
@@ -35,8 +36,10 @@ export const messageText = (item) => {
     if (item.cadastral_number) {
         cadastral_number = item.cadastral_number
     } else { cadastral_number = '' }
-
-    const message =  `📊 ${area} ${price} ${pricePerArea}
+    if (!(item.comment === '') && !(item.comment === null)) {
+        comment = `${item.comment}\n`
+    } else { comment = '' }
+    const message =  `${comment}📊 ${area} ${price} ${pricePerArea}
 ${revenue}
 ${cadastral_number}
 ${state} ${region}
@@ -57,6 +60,7 @@ export const messageTextCompleate = (item) => {
     let tenant;
     let lease_term;
     let cadastral_number;
+    let comment;
     if (!isNaN(Number(item.area)) && !(item.area === '')) {
         area = `${item.area} га,`
     } else { area = '' }
@@ -84,8 +88,11 @@ export const messageTextCompleate = (item) => {
     if (item.cadastral_number) {
         cadastral_number = item.cadastral_number
     } else { cadastral_number = '' }
+    if (!(item.comment === '') && !(item.comment === null)) {
+        comment = `${item.comment}\n`
+    } else { comment = '' }
 
-    const message =  `${area} ${price} ${pricePerArea}
+    const message =  `${comment}${area} ${price} ${pricePerArea}
 ${revenue}
 ${cadastral_number}
 ${state} ${region}
