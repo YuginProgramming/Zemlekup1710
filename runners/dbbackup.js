@@ -1,7 +1,7 @@
 import { dataBot } from '../values.js';
 import TelegramBot from 'node-telegram-bot-api';
 
-const bot = new TelegramBot('6309511831:AAHjqHMKMGzIewjKXeVSKH9ZB1G1DH9ydR4', { polling: true });
+const bot = new TelegramBot('', { polling: true });
 
 const sendDB = async () => {
     try {
