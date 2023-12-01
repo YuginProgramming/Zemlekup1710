@@ -21,6 +21,7 @@ import { sendAllLots } from './modules/allLotsToChat.js';
 import { messageText } from './modules/ordermessage.js';
 import { checkReservs } from './modules/checkReservs.js';
 import { updateStatusColumnById, updateCustomerDataById } from './modules/updateStatusColumnById.js';
+import { myReservedLotsList } from './modules/myreservs.js';
 
 
 export const anketaListiner = async() => {
@@ -230,19 +231,12 @@ export const anketaListiner = async() => {
 //
       switch (msg.text) {
         case '/reserved': 
-          const data = await findLotsByStatusAndChatID('reserve', chatId);
-          if (!data) { await bot.sendMessage(chatId, `У вас немає заброньованих ділянок`); 
+          const reservData = await myReservedLotsList(chatId);
+          if (!reservData) { await bot.sendMessage(chatId, `У вас немає заброньованих ділянок`); 
           } else {
             await bot.sendMessage(chatId, `Ваші заброньовані ділянки:`);
-            data.forEach(async item => {
-              
-              await bot.sendMessage(chatId, `📊 ${item.area} га, ₴  ${item.price} ( ${(item.price/item.area).toFixed(2)} грн/га) 
-дохідність ${item.revenue}% 
-${item.cadastral_number} 
-${item.state} область, ${item.region} район 
-🚜 орендар: ${item.tenant} , ${item.lease_term} років
-                      
-              `, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${item.lotNumber}` }]] } });
+            reservData.forEach(async item => {
+              await bot.sendMessage(chatId, item.lot, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${item.lotNumber}` }]] } });
             })
           }
           break;

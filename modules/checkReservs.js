@@ -1,6 +1,7 @@
 import { findReservsByChatId } from '../models/reservations.js';
 import { findLotByBotId } from '../models/lots.js';
 import { bot } from "../app.js";
+import { messageText } from './ordermessage.js';
 
 export const checkReservs = async (chatId) => {
     const reservs = await findReservsByChatId(chatId);
@@ -13,13 +14,7 @@ export const checkReservs = async (chatId) => {
             const lot = await findLotByBotId(item.bot_id);
             
             if (lot) {
-                bot.sendMessage(chatId, `📊 ${lot.area} га, ₴  ${lot.price} ( ${(lot.price/lot.area).toFixed(2)} грн/га) 
-дохідність ${lot.revenue}% 
-${lot.cadastral_number} 
-${lot.state} область, ${lot.region} район 
-🚜 орендар: ${lot.tenant} , ${lot.lease_term} років
-                  
-            `, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${lot.lotNumber}` }]] } });
+                bot.sendMessage(chatId, messageText(lot), { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${lot.lotNumber}` }]] } });
             }
             
         })

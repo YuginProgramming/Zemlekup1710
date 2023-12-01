@@ -208,7 +208,7 @@ const findLotsByStatusAndState = async (status, state) => {
 
 const findLotsByStatusAndChatID = async (status, chatId) => {
     const res = await Lot.findAll({ where: { lot_status: status, user_id: chatId } });
-    if (res.length > 0) return res;
+    if (res.length > 0) return res.map(el => el.dataValues);
     return;
 };
 
