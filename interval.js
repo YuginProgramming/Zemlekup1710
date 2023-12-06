@@ -34,13 +34,14 @@ const reservReminderTimerScript = async (bot_id, chat_id) => {
 
                         await updateStatusColumnById('new', bot_id);
                         await updateStatusAndUserIdBybot_id(bot_id, 'new', '');
-
-                        //await moveWaitlistOneStepInFront(bot_id);
+                        await moveWaitlistOneStepInFront(bot_id);
+                        
                         //await sendSoldToWaitingIDs(bot_id)
 
-                        await clearResrvBybot_id(bot_id);
+                        //await clearResrvBybot_id(bot_id);
 
                         await editingMessageKeyboard(bot_id, "Знову доступна 😉 \n ");
+                        
 
                         await bot.sendMessage(chat_id, message, { reply_markup: { inline_keyboard: [[{ text: "Купити ділянку", callback_data: `${lotData?.lotNumber}` }]] } });
                         logger.info(`USERID: ${chat_id} received second reminder about lotID${bot_id}. Lot avaliable for selling again ⛵`);

@@ -13,7 +13,7 @@ import {
 import { updateReservist_idByLotNumber, findReservByLotNumber, clearResrvBybot_id, findReservsByChatId } from './models/reservations.js';
 import { updateStatusAndUserIdBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber, findLotsByStatusAndChatID } from './models/lots.js';
 import { myLotsDataList } from './modules/mylots.js';
-import { addUserToWaitingList } from './modules/waitinglist.js';
+import { addUserToWaitingList, sendSoldToWaitingIDs } from './modules/waitinglist.js';
 import { getLotData } from './lotmanipulation.js';
 import { regionFilterKeyboard, sendFiltredByRegToChat } from './modules/regionfilter.js';
 import { stateFilterKeyboard } from './modules/statefilter.js';
@@ -102,7 +102,7 @@ export const anketaListiner = async() => {
           } else if (lotData.lot_status === 'reserve') {
 
               bot.sendMessage(chatId, 'Ділянку заброньовано');
-            /*
+            
               const waitlist = await addUserToWaitingList(lotData.bot_id, chatId);
 
               if (waitlist) {
@@ -110,7 +110,7 @@ export const anketaListiner = async() => {
               } else {
                   await bot.sendMessage(chatId, phrases.alreadyWaiting);
               }
-          */
+        
           } else if (lotData.lot_status === 'done') {
 
               bot.sendMessage(chatId, phrases.aleadySold);
@@ -170,7 +170,7 @@ export const anketaListiner = async() => {
 
               await updateStatusColumnById('done', updatedLot.bot_id);
               await updateCustomerDataById(userInfo.firstname, userInfo.contact, chatId, updatedLot.bot_id);
-
+              await sendSoldToWaitingIDs(updatedLot.bot_id)
               await clearResrvBybot_id(updatedLot.bot_id);
               await editingMessageCompleate(updatedLot.bot_id, "📌 ");
               const soldLotContent = messageText(updatedLot);
