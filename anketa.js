@@ -11,7 +11,7 @@ import {
   findUserByChatId
 } from './models/users.js';
 import { updateReservist_idByLotNumber, findReservByLotNumber, clearResrvBybot_id, findReservsByChatId } from './models/reservations.js';
-import { updateStatusAndUserIdBybot_id, updateLotIDByLotNumber, findLotBylotNumber, updateStatusByLotNumber, findLotsByStatusAndChatID } from './models/lots.js';
+import { updateStatusAndUserIdBybot_id, updateLotIDByBotId, findLotBylotNumber, updateStatusByLotNumber, findLotsByStatusAndChatID } from './models/lots.js';
 import { myLotsDataList } from './modules/mylots.js';
 import { addUserToWaitingList, sendSoldToWaitingIDs } from './modules/waitinglist.js';
 import { getLotData } from './lotmanipulation.js';
@@ -64,9 +64,9 @@ export const anketaListiner = async() => {
           if (lotData.lot_status === 'new' || reserv?.reservist_id == chatId ) {
               try {
                   if (!userInfo) await createNewUserByChatId(chatId);
-
-                  await updateStatusColumnById('reserve', lotData?.bot_id);
                   await updateStatusAndUserIdBybot_id(lotData?.bot_id, 'reserve', chatId);
+                  await updateStatusColumnById('reserve', lotData?.bot_id);
+                  
                   
                   await editingMessage(lotData?.bot_id, "РЕЗЕРВ 🙄 \n");
 
@@ -166,18 +166,22 @@ export const anketaListiner = async() => {
           if (status.lot_status === 'reserve') {
             try {
               const updatedLot = await updateStatusByLotNumber(userInfo.lotNumber, 'done');
-              await updateLotIDByLotNumber(userInfo.lotNumber, chatId);
+              //переписати на bot_id
+              await updateLotIDByBotId(updatedLot.bot_id, chatId);
 
               await updateStatusColumnById('done', updatedLot.bot_id);
               await updateCustomerDataById(userInfo.firstname, userInfo.contact, chatId, updatedLot.bot_id);
-              await sendSoldToWaitingIDs(updatedLot.bot_id)
+
+              await sendSoldToWaitingIDs(updatedLot.bot_id);
               await clearResrvBybot_id(updatedLot.bot_id);
+
               await editingMessageCompleate(updatedLot.bot_id, "📌 ");
               const soldLotContent = messageText(updatedLot);
               await bot.sendMessage(chatId, phrases.thanksForOrder(userInfo.firstname));
               await bot.sendMessage(chatId, soldLotContent); 
               logger.warn(`*USERID ${chatId} comleate order Lot#${userInfo.lotNumber} Name: ${userInfo.firstname} Contact: ${userInfo.contact}*`);
               //here sanding reminder for users in waiting list that lot they waitng already sold
+              //можливо реєстрацію треба перенести трохи вище по логіці
               await updateUserByChatId(chatId, 
               { 
                 isAuthenticated: true,

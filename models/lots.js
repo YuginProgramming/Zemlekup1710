@@ -152,15 +152,15 @@ const updateStatusByLotNumber = async (lotNumber, status) => {
     return undefined;
 };
 
-const updateLotIDByLotNumber = async (lotNumber, user_id) => {
-    const res = await Lot.update({ user_id } , { where: { lotNumber } });
+const updateLotIDByBotId = async (bot_id, user_id) => {
+    const res = await Lot.update({ user_id } , { where: { bot_id } });
     if (res[0]) {
-        const data = await findLotBylotNumber(lotNumber);
+        const data = await await findLotByBotId(bot_id);
         if (data) {
-            logger.info(`Lot# ${data.chat_id} userid updated.`);
+            //logger.info(`Lot# ${lotNumber} userid updated.`);
             return data;
         }
-        logger.info(`Lot  ${lotNumber} updated but cant read result data`);
+        logger.info(`Lot  ${bot_id} updated but cant read result data`);
     } 
     return undefined;
 };
@@ -239,7 +239,7 @@ export {
     updateStatusAndUserIdBybot_id,
     findLotBylotNumber,
     findLotsByStatus,
-    updateLotIDByLotNumber,
+    updateLotIDByBotId,
     findLotsByStatusAndState,
     findLotsByStatusAndRegion,
     lotExistsInDatabase,

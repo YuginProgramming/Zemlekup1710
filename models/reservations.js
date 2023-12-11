@@ -57,7 +57,7 @@ const clearResrvBybot_id = async ( bot_id) => {
     if (res[0]) {
         const data = await findReservByLotNumber(bot_id);
         if (data) {
-            logger.info(`Reserv for ID:#${data.bot_id} updated`);
+            //logger.info(`Reserv for ID:#${data.bot_id} updated`);
             return data;
         }
         logger.info(`Reserv ${bot_id} updated but cant read result data`);
