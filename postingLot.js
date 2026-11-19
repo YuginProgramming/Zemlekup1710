@@ -167,4 +167,45 @@ const sendLotToRegistredCustomers = async (message, lotNumber) => {
   logger.info(`*${usersChatId.length} користувачів отримали нагадування про новий лот*`);
 };
 
-export { postingLots, autoPosting, userMenegment, cuttingCallbackData, addLotById }
+const broadcastText = () => {
+  admin.on('message', async (message) => {
+    const text = message.text;
+    if (!text || !/^text(\s|$)/i.test(text)) return;
+
+    const payload = text.replace(/^text\s*/i, '').trim();
+    if (!payload) {
+      await admin.sendMessage(message.chat.id, 'Після команди text напишіть текст повідомлення.');
+      return;
+    }
+
+    const sent = await sendTextToRegisteredCustomers(payload);
+    await admin.sendMessage(message.chat.id, `Повідомлення надіслано ${sent} користувачам.`);
+  });
+};
+
+const sendTextToRegisteredCustomers = async (text) => {
+  const users = await findALLUsers();
+  if (!users) return 0;
+
+  const usersChatId = users.map((el) => el.chat_id);
+  const groupSize = 25;
+  let sent = 0;
+
+  for (let i = 0; i < usersChatId.length; i += groupSize) {
+    const chatIdsGroup = usersChatId.slice(i, i + groupSize);
+    await Promise.all(chatIdsGroup.map(async (chatId) => {
+      try {
+        await bot.sendMessage(chatId, text);
+        sent += 1;
+      } catch (error) {
+        logger.warn(`User: ${chatId}, hasn't received text message. Reason: ${error}`);
+      }
+    }));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  logger.info(`*${sent} користувачів отримали текстове повідомлення*`);
+  return sent;
+};
+
+export { postingLots, autoPosting, userMenegment, cuttingCallbackData, addLotById, broadcastText }
