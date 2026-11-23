@@ -167,6 +167,12 @@ const sendLotToRegistredCustomers = async (message, lotNumber) => {
   logger.info(`*${usersChatId.length} користувачів отримали нагадування про новий лот*`);
 };
 
+const isUnsubscribed = (error) => {
+  const code = error?.response?.error_code;
+  const description = String(error?.response?.description || error?.message || '');
+  return code === 403 || /blocked|deactivated|chat not found|kicked/i.test(description);
+};
+
 const broadcastText = () => {
   admin.on('message', async (message) => {
     const text = message.text;
@@ -178,18 +184,22 @@ const broadcastText = () => {
       return;
     }
 
-    const sent = await sendTextToRegisteredCustomers(payload);
-    await admin.sendMessage(message.chat.id, `Повідомлення надіслано ${sent} користувачам.`);
+    const { sent, unsubscribed } = await sendTextToRegisteredCustomers(payload);
+    await admin.sendMessage(
+      message.chat.id,
+      `Отримали: ${sent}\nВідписалися: ${unsubscribed}`,
+    );
   });
 };
 
 const sendTextToRegisteredCustomers = async (text) => {
   const users = await findALLUsers();
-  if (!users) return 0;
+  if (!users) return { sent: 0, unsubscribed: 0 };
 
   const usersChatId = users.map((el) => el.chat_id);
   const groupSize = 25;
   let sent = 0;
+  let unsubscribed = 0;
 
   for (let i = 0; i < usersChatId.length; i += groupSize) {
     const chatIdsGroup = usersChatId.slice(i, i + groupSize);
@@ -198,14 +208,18 @@ const sendTextToRegisteredCustomers = async (text) => {
         await bot.sendMessage(chatId, text);
         sent += 1;
       } catch (error) {
-        logger.warn(`User: ${chatId}, hasn't received text message. Reason: ${error}`);
+        if (isUnsubscribed(error)) {
+          unsubscribed += 1;
+        } else {
+          logger.warn(`User: ${chatId}, hasn't received text message. Reason: ${error}`);
+        }
       }
     }));
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
-  logger.info(`*${sent} користувачів отримали текстове повідомлення*`);
-  return sent;
+  logger.info(`*Текстове повідомлення: отримали ${sent}, відписалися ${unsubscribed}*`);
+  return { sent, unsubscribed };
 };
 
 export { postingLots, autoPosting, userMenegment, cuttingCallbackData, addLotById, broadcastText }
